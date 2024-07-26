@@ -1,6 +1,6 @@
 const config = {
-  mongo_uri: 'mongodb+srv://institutocrearapp:mVljagJpQleMIe9L@test.8goefek.mongodb.net/institutocrear?retryWrites=true&w=majority',
-  api_url: 'https://crear-app-a94ef456bf1a.herokuapp.com',
+  mongo_uri: 'mongodb+srv://madstagedbuser:madstagepassword@madstage.vqiomwa.mongodb.net/madstage?retryWrites=true&w=majority',
+  api_url: 'https://madstage-a16bef77c5b8.herokuapp.com',
   env: 'dev',
 }
 
