@@ -4,6 +4,7 @@ import Button from "./common/Button";
 import {EyeIcon} from './icons'
 import { useForm } from "react-hook-form";
 import * as utils from '../utils/utils'
+import logo2 from '../../src/logo2.png'
 
 export default function Login() {
   const API_URL = '/api/users/login';
@@ -43,6 +44,7 @@ export default function Login() {
           <div className="h-full overflow-auto mt-4">
             <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center justify-center p-4 rounded w-[400px] ">
+                <img src={logo2} className="w-40 -mt-10 mb-8" />
                 <h1 className="rounded p-4 text-white inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight ">LOGIN</h1>
 
                 <form onSubmit={handleSubmit(onSubmit)} className='w-full flex flex-col'>
