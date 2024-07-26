@@ -68,7 +68,7 @@ export const uploadResource = async (data) => {
   const formData = new FormData();
   formData.append("file", data.file[0]);
 
-  const res = await fetch(config.resourcesLink, {
+  const res = await fetch(config.baseUrl, {
       method: "POST",
       body: formData,
   }).then((res) => res.json());
