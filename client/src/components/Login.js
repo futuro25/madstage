@@ -45,7 +45,7 @@ export default function Login() {
             <div className="flex items-center justify-center h-full">
               <div className="flex flex-col items-center justify-center p-4 rounded w-[400px] ">
                 <img src={logo2} className="w-40 -mt-10 mb-8" />
-                <h1 className="rounded p-4 text-white inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight ">LOGIN</h1>
+                <h1 className="rounded p-4 text-white inline-block text-2xl sm:text-3xl font-extrabold text-white tracking-tight ">LOGIN</h1>
 
                 <form onSubmit={handleSubmit(onSubmit)} className='w-full flex flex-col'>
                   <input type="text" {...register("email", { required: true })} className="mt-2 rounded border border-slate-200  p-4 pl-8 text-slate-500 " />

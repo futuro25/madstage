@@ -133,7 +133,7 @@ function Layout({ children }) {
               <img src={logo2} alt="logo" className="ml-4 w-14 h-14 object-cover" />
               <h1 className="inline-block text-2xl sm:text-3xl text-white pl-2 tracking-tight ">Madstage</h1>
             </>
-          {
+          {/* {
             config.isDevelop &&
             <>
               <h1 className="inline-block text-sm text-white pl-2 tracking-tight ">(Test)</h1>
@@ -145,7 +145,7 @@ function Layout({ children }) {
             <>
               <h1 className="inline-block text-sm text-white pl-2 tracking-tight">(Local)</h1>
             </>
-          }
+          } */}
 
         </div>
         {

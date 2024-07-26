@@ -1,7 +1,7 @@
 
 const sgMail = require('@sendgrid/mail')
-const EMAIL_USER = 'institutocrear.info@gmail.com'
-const SUBJECT = 'Invitacion a la plataforma de Instituto Crear'
+const EMAIL_USER = 'tucuenta@gmail.com'
+const SUBJECT = 'Invitacion a la plataforma'
 
 async function sendEmail(to, html) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY)
