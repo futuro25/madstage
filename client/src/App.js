@@ -1,7 +1,7 @@
 import { NavLink, Navigate, Route, Routes, Outlet, useSearchParams, useLocation } from 'react-router-dom';
 import { BrowserView, MobileView, isBrowser, isMobile } from 'react-device-detect';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo2 from './logo2.png';
 import './App.css';
 import _, { capitalize } from 'lodash';
@@ -48,6 +48,7 @@ const getMenu = (userType) => {
   }
 }
 
+
 function getIconForMenu(option) {
   switch(option) {
     case 'sponsors': return <LayoutList />; break;
@@ -56,8 +57,6 @@ function getIconForMenu(option) {
     case 'logout': return <LogOut />; break;
   }
 }
-
-const isMobilePlatform = true;
 
 export default function App() {
 
@@ -121,7 +120,6 @@ export default function App() {
   );
 }
 
-
 function RootLayout() {
   return (
     <Layout>
@@ -132,34 +130,32 @@ function RootLayout() {
 
 function Layout({ children }) {
 
+  const [isMobilePlatform, setIsMobilePlatform] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobilePlatform(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function to remove the event listener
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
   const userType = sessionStorage.type;
   return (
     <div className="flex flex-col w-full h-screen text-gray-700">
       <nav className={cn("flex justify-between items-center pr-6 w-full h-16 bg-black-madstage text-white print:hidden")}>
         <div className="flex gap-2 items-center cursor-pointer" onClick={() => window.location.assign('/')}>
-
             <>
               <img src={logo2} alt="logo" className="ml-4 w-14 h-14 object-cover" />
               <h1 className="inline-block text-2xl sm:text-3xl text-white pl-2 tracking-tight ">mad stage</h1>
             </>
-          {/* {
-            config.isDevelop &&
-            <>
-              <h1 className="inline-block text-sm text-white pl-2 tracking-tight ">(Test)</h1>
-            </>
-          }
-
-          {
-            config.isLocal &&
-            <>
-              <h1 className="inline-block text-sm text-white pl-2 tracking-tight">(Local)</h1>
-            </>
-          } */}
-
         </div>
         {
           isMobilePlatform ? (
-            // <MobileMenu userType={userType} />
             <BottomMobileMenu userType={userType} />
           ) : (
             <Profile />
@@ -189,20 +185,6 @@ function Layout({ children }) {
         {/* Main content */}
         <main className="flex-1 bg-white w-full">{children}</main>
       </div>
-
-      {/* Footer logo */}
-      {/* {
-        isMobilePlatform ?
-          <div className="flex gap-2 right-4 fixed bottom-6 z-20 justify-center items-center px-3 h-10 bg-white rounded-full shadow print:hidden">
-            <span className="text-xs tracking-widest leading-none text-gray-300">&copy; {new Date().getFullYear()}</span>
-            <span className="text-xs">{BRAND}</span>
-          </div>
-          :
-          <div className="flex gap-2 fixed bottom-6 z-20 justify-center items-center px-3 h-10 bg-white rounded-full shadow print:hidden">
-            <span className="text-xs tracking-widest leading-none text-gray-300">&copy; {new Date().getFullYear()}</span>
-            <span className="text-xs">{BRAND}</span>
-          </div>
-      } */}
     </div>
   )
 }
@@ -244,7 +226,6 @@ function MobileMenu({userType}) {
     </div>
   )
 }
-
 
 
 function BottomMobileMenu({userType}) {
