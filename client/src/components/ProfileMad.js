@@ -1,8 +1,11 @@
 import React, {useState, useEffect} from "react";
+import { Dialog, DialogContent } from "./common/Dialog";
+import { CloseIcon } from "./icons";
+import Button from "./common/Button";
 import { Star } from 'lucide-react';
 import { range } from "lodash";
 export default function ProfileMad() {
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const user = {
     id: 1,
     name: 'Andrew Alfred',
@@ -48,8 +51,10 @@ export default function ProfileMad() {
       <hr className="my-4 text-slate-200" />
 
       <div className="mt-4">
+      <div className="flex items-center justify-between ml-auto">
         <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Images</h2>
-        
+        <span>+ Agregar</span>
+        </div>
         <div className="grid grid-cols-4 gap-4 mt-2">
           {
             user.pictures.map(image => (
@@ -79,6 +84,21 @@ export default function ProfileMad() {
         </div>
       </div>
 
+      <Dialog open={isModalOpen}>
+        <DialogContent>
+          <div className="w-[500px] h-[400px]">
+            <div className="flex justify-end items-center text-gray-500">
+              <button onClick={() => setIsModalOpen(false)}>
+                <CloseIcon />
+              </button>
+            </div>
+
+            <div className="flex gap-2 justify-center items-center">
+              <Button onClick={() => setIsModalInvoiceOpen(false)}>Cerrar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

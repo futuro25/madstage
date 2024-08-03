@@ -16,6 +16,7 @@ import Login from './components/Login';
 import Logout from './components/Logout';
 import Invite from './components/Invite';
 import CreateAccount from './components/CreateAccount';
+import { LayoutList, User, Settings as SettingsIcon, LogOut } from 'lucide-react'
 import { config } from './config';
 
 const getMenu = (userType) => {
@@ -47,7 +48,15 @@ const getMenu = (userType) => {
   }
 }
 
-const BRAND = "Madstage"
+function getIconForMenu(option) {
+  switch(option) {
+    case 'sponsors': return <LayoutList />; break;
+    case 'profile-mad': return <User />; break;
+    case 'settings': return <SettingsIcon />; break;
+    case 'logout': return <LogOut />; break;
+  }
+}
+
 const isMobilePlatform = true;
 
 export default function App() {
@@ -131,7 +140,7 @@ function Layout({ children }) {
 
             <>
               <img src={logo2} alt="logo" className="ml-4 w-14 h-14 object-cover" />
-              <h1 className="inline-block text-2xl sm:text-3xl text-white pl-2 tracking-tight ">Madstage</h1>
+              <h1 className="inline-block text-2xl sm:text-3xl text-white pl-2 tracking-tight ">mad stage</h1>
             </>
           {/* {
             config.isDevelop &&
@@ -150,7 +159,8 @@ function Layout({ children }) {
         </div>
         {
           isMobilePlatform ? (
-            <MobileMenu userType={userType} />
+            // <MobileMenu userType={userType} />
+            <BottomMobileMenu userType={userType} />
           ) : (
             <Profile />
           )
@@ -234,3 +244,26 @@ function MobileMenu({userType}) {
     </div>
   )
 }
+
+
+
+function BottomMobileMenu({userType}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-black-madstage text-white flex justify-between">
+      {
+        getMenu(userType).map((el, i) => {
+          return (
+            <NavLink key={i} className="h-16 w-full flex items-center justify-center text-white hover:bg-gray-400 cursor-pointer" to={el} onClick={() => setOpen(!open)}>
+              {
+                getIconForMenu(el)
+              }
+            </NavLink>
+          )
+        }
+        )
+      }
+    </div>
+  )
+}
+

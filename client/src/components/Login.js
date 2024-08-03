@@ -16,7 +16,7 @@ export default function Login() {
 
   const onSubmit = async (formData) => {
     const body = {
-      email: formData.email,
+      email: formData.email.toLowerCase(),
       password: formData.password
     }
 
