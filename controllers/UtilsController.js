@@ -8,6 +8,7 @@ const Log   = require('../models/log.model');
 self.upload = async (req, res) => {  
   if (req.files?.file.tempFilePath) {
     const assetUrl = await utils.uploadImage(req.files.file.tempFilePath)
+    console.log(assetUrl)
     return res.json(assetUrl);
   } else {
     return false;

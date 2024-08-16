@@ -1,104 +1,97 @@
+import ProfileCard from "./common/ProfileCard";
 import React, {useState, useEffect} from "react";
 import { Dialog, DialogContent } from "./common/Dialog";
+import LoadingState from "./common/LoadingState";
 import { CloseIcon } from "./icons";
 import Button from "./common/Button";
-import { Star } from 'lucide-react';
-import { range } from "lodash";
+import useSWR from 'swr'
+import Header from "./common/Header";
+
 export default function ProfileMad() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const user = {
-    id: 1,
-    name: 'Andrew Alfred',
-    picture: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?ixlib=rb-1.2.1&amp;ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&amp;auto=format&amp;fit=facearea&amp;facepad=4&amp;w=256&amp;h=256&amp;q=80',
-    type: 'Artist',
-    rating: 3,
-    description: "Maybe we can live without libraries, people like you and me. Maybe. Sure, we're too old to change the world, but what about that kid, sitting down, opening a book, right now, in a branch at the local library and finding drawings of pee-pees and wee-wees on the Cat in the Hat and the Five Chinese Brothers? Doesn't HE deserve better?",
-    pictures: [{id: 1, url: 'https://hips.hearstapps.com/hmg-prod/images/el-columpio-64390762ceeec.jpg?resize=640:*' }, { id: 2, url: 'https://hips.hearstapps.com/hmg-prod/images/el-beso-1639396100.jpeg?resize=980:*' }, { id: 3, url: 'https://hips.hearstapps.com/hmg-prod/images/caminante-64390e7409ef4.jpg?resize=640:*' }, {id: 4, url: 'https://hips.hearstapps.com/hmg-prod/images/el-columpio-64390762ceeec.jpg?resize=640:*'}],
-    merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}]};
+
+  const API_URL = '/api/users';
+  const { data: dataUser } = useSWR(API_URL + "/" + sessionStorage.userId, (url) => fetch(url).then(res => res.json()))
+  const [user, setUser] = useState({});
+  
+  useEffect(() => {
+    const tempUser = {
+      ...dataUser,
+      pictures: [{id: 1, url: 'https://hips.hearstapps.com/hmg-prod/images/el-columpio-64390762ceeec.jpg?resize=640:*' }, { id: 2, url: 'https://hips.hearstapps.com/hmg-prod/images/el-beso-1639396100.jpeg?resize=980:*' }, { id: 3, url: 'https://hips.hearstapps.com/hmg-prod/images/caminante-64390e7409ef4.jpg?resize=640:*' }, {id: 4, url: 'https://hips.hearstapps.com/hmg-prod/images/el-columpio-64390762ceeec.jpg?resize=640:*'}],
+      merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
+    }
+    setUser(tempUser);
+  }, [dataUser])
+
 
   return (
-    <div className="px-4 h-full overflow-auto mt-4 px-4">
-      <div className="w-full flex sticky top-0 z-10 bg-white rounded pb-4 items-center justify-center mt-4 mb-4">
-        <h1 className="inline-block font-extrabold text-gray-800 tracking-tight text-2xl">
-            Profile MAD
-        </h1>
-      </div>
+    <>
+    {
+      user?._id ? (
+        <div className="px-4 h-full overflow-auto mt-4">
+          <Header string="Mad's" />
+          <ProfileCard key={user.id} user={user} />
 
-      <div className="overflow-visible mb-10 left-4 relative max-w-80 mx-auto bg-white shadow-lg ring-1 ring-black/5 rounded-xl flex items-center gap-6 dark:bg-slate-800 dark:highlight-white/5">
-        <img className="absolute -left-6 w-24 h-24 rounded-full shadow-lg" src={user.picture} />
-        <div className="flex flex-col py-5 pl-24">
-          <strong className="text-slate-900 text-sm font-medium dark:text-slate-200">{user.name}</strong>
-          <span className="text-slate-500 text-sm font-medium dark:text-slate-400">{user.type}</span>
-          <div className="flex mt-1">
-            {
-              range(user.rating).map(star => (
-                <Star className="w-4 h-4 text-yellow-500" />
-              ))
-            }
-            {
-              range(user.rating, 5).map(star => (
-                <Star className="w-4 h-4" />
-              ))
-            }
+          <div className="mt-8">
+            <p className="text-justify">{user.description}</p>
           </div>
-        </div>
-      </div>
 
-      <div className="mt-8">
-        <p className="text-justify">{user.description}</p>
-      </div>
+          <hr className="my-4 text-slate-200" />
 
-      <hr className="my-4 text-slate-200" />
+          <div className="mt-4">
+          <div className="flex items-center justify-between ml-auto">
+            <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Images</h2>
+            <span>+ Agregar</span>
+            </div>
+            <div className="grid grid-cols-4 gap-4 mt-2">
+              {
+                user.pictures.map(image => (
+                  <div className="rounded-lg shadow-lg max-w-32">
+                    <img src={image.url} />
+                  </div>
+                ))
+              }
+            </div>
+          </div>
 
-      <div className="mt-4">
-      <div className="flex items-center justify-between ml-auto">
-        <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Images</h2>
-        <span>+ Agregar</span>
-        </div>
-        <div className="grid grid-cols-4 gap-4 mt-2">
-          {
-            user.pictures.map(image => (
-              <div className="rounded-lg shadow-lg max-w-32">
-                <img src={image.url} />
-              </div>
-            ))
-          }
-        </div>
-      </div>
+          <div className="mt-4">
+            <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Merch</h2>
+            
+            <div className="grid grid-cols-4 gap-4 mt-2">
+              {
+                user.merch.map(image => (
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="rounded-lg shadow-lg max-w-32 p-1">
+                      <img src={image.url} />
+                    </div>
+                    <div>{image.name}</div>
+                    <div>${image.price}</div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
 
-      <div className="mt-4">
-        <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Merch</h2>
-        
-        <div className="grid grid-cols-4 gap-4 mt-2">
-          {
-            user.merch.map(image => (
-              <div className="flex flex-col items-center justify-center">
-                <div className="rounded-lg shadow-lg max-w-32 p-1">
-                  <img src={image.url} />
+          <Dialog open={isModalOpen}>
+            <DialogContent>
+              <div className="w-[500px] h-[400px]">
+                <div className="flex justify-end items-center text-gray-500">
+                  <button onClick={() => setIsModalOpen(false)}>
+                    <CloseIcon />
+                  </button>
                 </div>
-                <div>{image.name}</div>
-                <div>${image.price}</div>
+
+                <div className="flex gap-2 justify-center items-center">
+                  <Button onClick={() => setIsModalInvoiceOpen(false)}>Cerrar</Button>
+                </div>
               </div>
-            ))
-          }
+            </DialogContent>
+          </Dialog>
         </div>
-      </div>
-
-      <Dialog open={isModalOpen}>
-        <DialogContent>
-          <div className="w-[500px] h-[400px]">
-            <div className="flex justify-end items-center text-gray-500">
-              <button onClick={() => setIsModalOpen(false)}>
-                <CloseIcon />
-              </button>
-            </div>
-
-            <div className="flex gap-2 justify-center items-center">
-              <Button onClick={() => setIsModalInvoiceOpen(false)}>Cerrar</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+      ) : (
+        <LoadingState />
+      )
+    }
+    </>
   );
 }

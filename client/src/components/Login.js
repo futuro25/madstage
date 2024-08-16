@@ -25,6 +25,7 @@ export default function Login() {
       const userId = userLogin.data._id;
       await utils.patchRequest(`${API_USERS_URL}/${userId}`, {lastlogin: new Date()});
       
+      sessionStorage.userId = userLogin.data._id;
       sessionStorage.name = userLogin.data.name;
       sessionStorage.lastName = userLogin.data.lastName;
       sessionStorage.email = userLogin.data.email;
@@ -60,7 +61,8 @@ export default function Login() {
                   <Button className="mt-2">Login</Button>
                   {errorLogin && <span className='p-2 text-red-500'>{errorLogin}</span>}
                 </form>
-                <Button className="mt-2 f-full" variant="outline" onClick={() => navigate("/create-account")}>Create account</Button>
+                <Button className="mt-2" variant="outline" onClick={() => navigate("/create-account")}>Create account</Button>
+                <Button className="" variant="outline" onClick={() => navigate("/forgot-password")}>Forgot password?</Button>
               </div>
             </div>
           </div>

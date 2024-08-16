@@ -16,6 +16,7 @@ import Login from './components/Login';
 import Logout from './components/Logout';
 import Invite from './components/Invite';
 import CreateAccount from './components/CreateAccount';
+import ForgotPassword from './components/ForgotPassword';
 import { LayoutList, User, Settings as SettingsIcon, LogOut } from 'lucide-react'
 import { config } from './config';
 
@@ -77,6 +78,7 @@ export default function App() {
         <Route path="login" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/invite" element={<Invite inviteId={inviteId} />} />
         <Route path="/logout" element={<Logout />} />
       </Routes>

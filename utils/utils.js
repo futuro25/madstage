@@ -4,11 +4,13 @@ const { addDays } = require('date-fns');
 var nodemailer = require('nodemailer');
 
 cloudinary.config({ 
-  cloud_name: 'dg2uuerzi', 
-  api_key: '245255439365974', 
+  cloud_name: 'dg2uuerzi',
+  api_key: '245255439365974',
   api_secret: 'a-o1PWgkzcOXGGL1CcSxD23Cf00',
-  secure: true
+  secure: true,
+  imagen_no_disponible : "https://res.cloudinary.com/hn66vemno/image/upload/v1564410683/imagen_no_disponible_ivztdj.png"
 });
+
 
 /////////////////////////
 // Uploads an image file

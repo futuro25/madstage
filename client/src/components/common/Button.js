@@ -8,7 +8,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: tw`bg-emerald-500 text-white hover:bg-emerald-500/90 focus-visible:ring-emerald-500`,
+        default: tw`!bg-green-500 text-white hover:!bg-green-500/90 focus-visible:ring-red`,
         secondary: tw`border border-emerald-500 text-emerald-500 hover:bg-emerald-100 focus-visible:ring-emerald-500`,
         alternative: tw`bg-blue-500 text-white hover:bg-blue-500/90 focus-visible:ring-blue-500`,
         alternativeSecondary: tw`bg-orange-500 text-white hover:bg-orange-500/90 focus-visible:ring-orange-500`,

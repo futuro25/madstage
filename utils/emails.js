@@ -1,15 +1,15 @@
-
 const sgMail = require('@sendgrid/mail')
-const EMAIL_USER = 'tucuenta@gmail.com'
-const SUBJECT = 'Invitacion a la plataforma'
+const EMAIL_USER = 'madstage.team@gmail.com';
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 
-async function sendEmail(to, html) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+async function sendEmail(to, subject, html) {
+  
+  sgMail.setApiKey(SENDGRID_API_KEY)
   const msg = {
     to: to,
     from: EMAIL_USER,
-    subject: SUBJECT,
-    text: SUBJECT,
+    subject: subject.toString(),
+    text: subject.toString(),
     html: html
   }
 
@@ -20,6 +20,7 @@ async function sendEmail(to, html) {
     })
     .catch((error) => {
       console.error(error)
+      console.error(JSON.stringify(error))
     })
 }
 

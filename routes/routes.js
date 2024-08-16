@@ -20,6 +20,7 @@ router.post('/users', (req, res, next) => userController.createUser(req, res, ne
 router.patch('/users/:userId', (req, res, next) => userController.getUserByIdAndUpdate(req, res, next));
 router.delete('/users/:userId', (req, res, next) => userController.deleteUserById(req, res, next));
 router.post('/users/login', (req, res, next) => userController.login(req, res, next));
+router.post('/users/forgot-password', (req, res, next) => userController.forgotPassword(req, res, next));
 
 // STUDENT
 router.get('/students', (req, res, next) => studentController.getStudents(req, res, next));

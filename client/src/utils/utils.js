@@ -1,3 +1,4 @@
+import { capitalize } from "lodash";
 import {clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
 import axios from 'axios';
@@ -68,7 +69,19 @@ export const uploadResource = async (data) => {
   const formData = new FormData();
   formData.append("file", data.file[0]);
 
-  const res = await fetch(config.baseUrl, {
+  const res = await fetch(config.resourcesLink, {
+      method: "POST",
+      body: formData,
+  }).then((res) => res.json());
+
+  return res;
+}
+
+export const uploadFile = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(config.resourcesLink, {
       method: "POST",
       body: formData,
   }).then((res) => res.json());
@@ -186,4 +199,11 @@ export const handleKeyPress = (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();;
   }
+}
+
+export function getNameInitials(name) {
+  return name
+    .split(' ')
+    .map((n) => capitalize(n[0]))
+    .join('');
 }

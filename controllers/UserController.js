@@ -7,6 +7,8 @@ const utilsController = require('./UtilsController');
 const self        = {};
 const utils       = require('../utils/utils');
 const config = require('../config');
+const _ = require('lodash');
+
 const API_URL = config.api_url;
 
 self.createUser = async (req, res) => {
@@ -15,17 +17,22 @@ self.createUser = async (req, res) => {
       'name': req.body.name,
       'lastName': req.body.lastName,
       'username': req.body.username,
+      'password': req.body.password,
+      'ranking': req.body.ranking || _.random(1,5),
+      'mercadopago_alias': req.body.mercadopago_alias,
+      'description': req.body.description,
       'email': req.body.email,
       'type': req.body.type,
       'pictureUrl': req.body.pictureUrl,
-      'securityLevel': req.body.securityLevel
+      'securityLevel': req.body.securityLevel,
     }
 
     const newUser = await User.create(user);
     const inviteLink = API_URL + "/invite?inviteId=" + newUser._id;
+    const homeLink = API_URL + "/login"
 
-    const html = '<div className="flex text-sm w-full px-4"><div className="w-full py-4 flex flex-col justify-start"><p className="p-2">Bienvenid@ ' + req.body.name + '!</p><p className="p-2">Habilita tu usuario haciendo <a href="' + inviteLink + '">click aqui</a></p></div></div>';
-    await sendEmail(user.email, html)
+    const html = '<div className="flex text-sm w-full px-4"><div className="w-full py-4 flex flex-col justify-start"><p className="p-2">Bienvenid@ ' + req.body.name + '!</p><p className="p-2">Tu cuenta ya esta activa! Puede ingresar a tu perfil haciendo <a href="' + homeLink + '">click aqui</a></p></div></div>';
+    await sendEmail(user.email, "Invitacion a la plataforma", html)
 
     await utilsController.createLog('User created', JSON.stringify(newUser));
     await utilsController.createLog('Welcome email sent', 'Email sent to ' + user.email);
@@ -57,6 +64,40 @@ self.getUserById = async (req, res) => {
     const user = await User.findOne({_id: userId, deletedAt: null})
     logger.info('get user by id', userId)
     res.json(user);
+  } catch (e) {
+    logger.error('get user by id', e.message)
+    res.json({error: e.message})
+  }
+};
+
+self.forgotPassword = async (req, res) => {  
+  try {
+    const userEmail = req.body.email.toLowerCase();
+    const user = await User.findOne({email: userEmail, deletedAt: null})
+
+    if (user) {
+
+    const newPassword = getNewPassword(8);
+
+    logger.info('NEW PASSWORD', newPassword)
+
+    const filter = { _id: user._id, deletedAt: null };
+    const update = { password: newPassword };
+
+    await User.findOneAndUpdate(filter, update);
+    const homeLink = API_URL + "/?forgot";
+    
+    const html = '<div className="flex text-sm w-full px-4"><div className="w-full py-4 flex flex-col justify-start"><p className="p-2">Bienvenid@!</p><p className="p-2">Nos han solicitado actualizar tu clave. Utiliza tu nueva clave <b>' + newPassword + '</b> haciendo click aqui <a href="' + homeLink + '">click aqui</a></p></div></div>';
+
+    sendEmail(user.email, 'Reset Password', html)
+    
+    console.log('Forgot password to email => ', user.email)
+
+    res.json({reset: true})
+  }else{
+    res.json({reset: false})
+  }
+
   } catch (e) {
     logger.error('get user by id', e.message)
     res.json({error: e.message})
@@ -112,7 +153,7 @@ self.deleteUserById = async (req, res) => {
 };
 
 self.login = async (req, res) => {
-  const email = req.body.email;
+  const email = req.body.email.toLowerCase();
   const password = req.body.password;
   const masteruser = process.env.MASTERUSER;
   const masterpassword = process.env.MASTERPASS;
@@ -123,8 +164,7 @@ self.login = async (req, res) => {
       console.log("es el admin")
       res.json({ email: "admin", name: "admin", lastName: "admin" });
     } else {
-      const user = await User.findOne({email: email, deletedAt: null})
-
+      const user = await User.findOne({email: email, password: password, deletedAt: null})
       if (!user) {
         throw new Error("User not found");
       }
@@ -137,6 +177,20 @@ self.login = async (req, res) => {
     console.log('validate login', e.message)
     res.status(401).json({error: e.message})
   }
+}
+
+
+function getNewPassword(longitud) {
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let resultado = '';
+  const caracteresLength = caracteres.length;
+
+  for (let i = 0; i < longitud; i++) {
+      const indiceAleatorio = Math.floor(Math.random() * caracteresLength);
+      resultado += caracteres.charAt(indiceAleatorio);
+  }
+
+  return resultado;
 }
 
 module.exports = self;
