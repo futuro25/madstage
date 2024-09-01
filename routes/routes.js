@@ -11,11 +11,12 @@ const bankController     = require('../controllers/BankController');
 const billingController     = require('../controllers/BillingController');
 const receiptController     = require('../controllers/ReceiptController');
 const utilsController     = require('../controllers/UtilsController');
+const MercadoPagoController     = require('../controllers/MercadoPagoController');
 
 // USER
 router.get('/users', (req, res, next) => userController.getUsers(req, res, next));
 router.get('/users/:userId', (req, res, next) => userController.getUserById(req, res, next));
-router.get('/users/:username', (req, res, next) => userController.getUserByUsername(req, res, next));
+router.get('/users/username/:username', (req, res, next) => userController.getUserByUsername(req, res, next));
 router.post('/users', (req, res, next) => userController.createUser(req, res, next));
 router.patch('/users/:userId', (req, res, next) => userController.getUserByIdAndUpdate(req, res, next));
 router.delete('/users/:userId', (req, res, next) => userController.deleteUserById(req, res, next));
@@ -85,5 +86,8 @@ router.patch('/banks/:bankId', (req, res, next) => bankController.getBankByIdAnd
 router.delete('/banks/:bankId', (req, res, next) => bankController.deleteBankById(req, res, next));
 
 // router.post('/students/upload', (req, res, next) => studentController.upload(req, res, next));
+
+
+router.post('/payment-notifications', (req, res, next) => MercadoPagoController.index(req, res, next));
 
 module.exports = router;

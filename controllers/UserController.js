@@ -14,14 +14,14 @@ const API_URL = config.api_url;
 self.createUser = async (req, res) => {
   try {
     const user = {
-      'name': req.body.name,
-      'lastName': req.body.lastName,
-      'username': req.body.username,
+      'name': req.body.name.toLowerCase(),
+      'lastName': req.body.lastName.toLowerCase(),
+      'username': req.body.username.toLowerCase(),
       'password': req.body.password,
       'ranking': req.body.ranking || _.random(1,5),
       'mercadopago_alias': req.body.mercadopago_alias,
       'description': req.body.description,
-      'email': req.body.email,
+      'email': req.body.email.toLowerCase(),
       'type': req.body.type,
       'pictureUrl': req.body.pictureUrl,
       'securityLevel': req.body.securityLevel,

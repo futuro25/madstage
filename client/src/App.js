@@ -13,6 +13,7 @@ import Settings from './components/Settings';
 import ProfileSponsor from './components/ProfileSponsor';
 import { cn, tw } from './utils/utils';
 import Login from './components/Login';
+import PaymentNotifications from './components/PaymentNotifications';
 import Logout from './components/Logout';
 import Invite from './components/Invite';
 import CreateAccount from './components/CreateAccount';
@@ -81,6 +82,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/invite" element={<Invite inviteId={inviteId} />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/payment-notifications" element={<PaymentNotifications />} />
       </Routes>
     )
   }

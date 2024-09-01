@@ -13,11 +13,12 @@ import LoadingState from './common/LoadingState';
 
 export default function Settings() {
 
+  const userId = sessionStorage.userId;
   const API_URL = '/api/users';
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
-  const { data, error, isLoading, isValidating } = useSWR(API_URL + "/" + sessionStorage.userId, (url) => fetch(url).then(res => res.json()))
+  const { data, error, isLoading, isValidating } = useSWR(API_URL + "/" + userId, (url) => fetch(url).then(res => res.json()))
   const [user, setUser] = useState({});
   const [userImage, setUserImage] = useState(null);
   const [editingMode, setEditingMode] = useState(false);
@@ -123,7 +124,7 @@ export default function Settings() {
                                 <label className="text-slate-500 w-36 font-bold">MercadoPago Alias:</label>
                                 {
                                   editingMode ? (
-                                    <input onKeyDown={utils.handleKeyPress} type="text" defaultValue={user?.mercadopago_alias || ''} {...register("mercadopago_alias", { required: false })} className="w-48 rounded border border-slate-200  p-4 pl-8 text-slate-500 " />
+                                    <input onKeyDown={utils.handleKeyPress} type="text" defaultValue={user?.mercadopago_alias || ''} {...register("mercadopago_alias", { required: false })} className="w-48 rounded border border-slate-200  p-2 text-slate-500 " />
                                     ) : (
                                     <label className="text-slate-500 w-20">{user?.mercadopago_alias}</label>
                                   )
@@ -136,13 +137,13 @@ export default function Settings() {
                           <tr>
                             <td>
                               <div className="p-4 gap-2 flex items-center">
-                                <label className="text-slate-500 w-36 font-bold">Reseña:</label>
+                                <label className="text-slate-500 !w-36 font-bold">Reseña:</label>
 
                                 {
                                   editingMode ? (
-                                    <textarea onKeyDown={utils.handleKeyPress} type="text" defaultValue={user?.description || ''} {...register("description", { required: false })} className="w-48 rounded border border-slate-200  p-4 pl-8 text-slate-500 " />
+                                    <textarea onKeyDown={utils.handleKeyPress} type="text" defaultValue={user?.description || ''} {...register("description", { required: false })} className="w-48 h-40 rounded border border-slate-200  p-2 text-slate-500 " />
                                   ) : (
-                                    <label className="text-slate-500 ml-[70px]">{user?.description}</label>
+                                    <label className="text-slate-500 ml-[90px]">{user?.description}</label>
                                   )
                                 }
 
@@ -157,7 +158,7 @@ export default function Settings() {
                                 <label className="text-slate-500 w-36 font-bold">Ranking:</label>
                                 {
                                   editingMode ? (
-                                    <input min={1} max={5} onKeyDown={utils.handleKeyPress} type="number" defaultValue={user?.ranking || ''} {...register("ranking", { required: false })} className="w-48 rounded border border-slate-200  p-4 pl-8 text-slate-500 " />
+                                    <input min={1} max={5} onKeyDown={utils.handleKeyPress} type="number" defaultValue={user?.ranking || ''} {...register("ranking", { required: false })} className="w-48 rounded border border-slate-200  p-2 text-slate-500 " />
                                     ) : (
                                     <label className="text-slate-500 w-20">{user?.ranking}</label>
                                   )
