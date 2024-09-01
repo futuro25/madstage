@@ -6,7 +6,7 @@ import Header from "./common/Header";
 
 export default function Sponsors() {
 
-  const API_URL = '/api/users';
+  const API_URL = '/api/users?type=sponsor';
   const { data: dataUsers } = useSWR(API_URL, (url) => fetch(url).then(res => res.json()))
 
   return (

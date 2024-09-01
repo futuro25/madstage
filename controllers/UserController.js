@@ -48,7 +48,12 @@ self.createUser = async (req, res) => {
 
 self.getUsers = async (req, res) => {  
   try {
-    const users = await User.find({deletedAt: null});
+    let users;
+    if (req.query.type) {
+      users = await User.find({type: req.query.type.toUpperCase(), deletedAt: null});  
+    }else{
+      users = await User.find({deletedAt: null});
+    }
     console.log('get users', JSON.stringify(users))
     logger.info('get users', JSON.stringify(users))
     res.json(users);

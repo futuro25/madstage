@@ -8,8 +8,9 @@ import _, { capitalize } from 'lodash';
 import Home from './components/Home';
 import Sponsors from './components/Sponsors';
 import Mads from './components/Mads';
-import ProfileMad from './components/ProfileMad';
 import Settings from './components/Settings';
+import ProfileMad from './components/ProfileMad';
+import ProfileFan from './components/ProfileFan';
 import ProfileSponsor from './components/ProfileSponsor';
 import { cn, tw } from './utils/utils';
 import Login from './components/Login';
@@ -18,10 +19,23 @@ import Logout from './components/Logout';
 import Invite from './components/Invite';
 import CreateAccount from './components/CreateAccount';
 import ForgotPassword from './components/ForgotPassword';
+import MercadoPago from './components/MercadoPago';
 import { LayoutList, User, Settings as SettingsIcon, LogOut } from 'lucide-react'
 import { config } from './config';
 
 const getMenu = (userType) => {
+
+  return [
+    'mads',
+    'sponsors',
+    'profile-mad',
+    'profile-fan',
+    'profile-sponsor',
+    'settings',
+    'mercadoPago',
+    'logout',
+  ];
+
   if (userType === 'MAD') {
     return [
       'sponsors',
@@ -97,7 +111,9 @@ export default function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="home" element={<Home />} />
           <Route path="profile-mad" element={<ProfileMad />} />
+          <Route path="profile-fan" element={<ProfileFan />} />
           <Route path="profile-sponsor" element={<ProfileSponsor />} />
+          <Route path="mercadoPago" element={<MercadoPago />} />
           <Route path="logout" element={<Logout />} />
         </Route>
         <Route
@@ -251,4 +267,13 @@ function BottomMobileMenu({userType}) {
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
 

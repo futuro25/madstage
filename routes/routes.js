@@ -88,6 +88,7 @@ router.delete('/banks/:bankId', (req, res, next) => bankController.deleteBankByI
 // router.post('/students/upload', (req, res, next) => studentController.upload(req, res, next));
 
 
-router.post('/payment-notifications', (req, res, next) => MercadoPagoController.index(req, res, next));
+router.get('/payment-notifications', (req, res, next) => MercadoPagoController.index(req, res, next));
+router.get('/mercadopago/preferences', (req, res, next) => MercadoPagoController.getPreferencePaymentId(req, res, next));
 
 module.exports = router;
