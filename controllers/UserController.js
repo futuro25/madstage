@@ -7,7 +7,11 @@ const utilsController = require('./UtilsController');
 const self        = {};
 const utils       = require('../utils/utils');
 const config = require('../config');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const _ = require('lodash');
+
 
 const API_URL = config.api_url;
 
@@ -163,7 +167,7 @@ self.login = async (req, res) => {
   const masteruser = process.env.MASTERUSER;
   const masterpassword = process.env.MASTERPASS;
   console.log("masteruser", masteruser, "masterpassword", masterpassword, "username", email, "password", password)
-
+  
   try {
     if (masteruser === email && masterpassword === password) {
       console.log("es el admin")
@@ -184,6 +188,26 @@ self.login = async (req, res) => {
   }
 }
 
+self.uploadResource = async (req, res) => {
+  try {
+    // Verifica si se subieron archivos
+    if (req.files && req.files.length > 0) {
+      // Mapear las URLs de las imágenes subidas
+      const imageUrls = req.files.map(file => file.path);
+
+      // Imprimir en consola cada URL (opcional)
+      imageUrls.forEach(url => console.log(`Imagen subida: ${url}`));
+
+      // Devolver las URLs en la respuesta
+      return res.json({ imageUrls });
+    } else {
+      return res.status(400).json({ message: 'No se subieron imágenes' });
+    }
+  } catch (error) {
+    console.error('Error al subir las imágenes:', error);
+    return res.status(500).json({ message: 'Error en el servidor' });
+  }
+}
 
 function getNewPassword(longitud) {
   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

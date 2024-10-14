@@ -6,6 +6,29 @@ const routes = require('./routes/routes.js');
 const app = express();
 const fileupload = require('express-fileupload'); 
 const config = require('./config');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const userController     = require('./controllers/UserController');
+
+cloudinary.config({
+  cloud_name: 'dijoga0up',
+  api_key: '941448999678395',
+  api_secret: '1JWhmHBIrQDjbBdwtuH9m0GiBpQ',
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads', // Carpeta en Cloudinary
+    allowed_formats: ['jpg', 'png', 'jpeg'], // Formatos permitidos
+  },
+});
+
+const upload = multer({ storage });
+
+app.post('/api/upload', upload.array('images', 10), userController.uploadResource);
+
 
 // Configuracion para evitar errores de CORS
 app.use((req, res, next) => {

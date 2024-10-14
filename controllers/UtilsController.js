@@ -4,6 +4,23 @@ const logger     = require('../utils/logger');
 const utils = require('../utils/utils');
 const self       = {};
 const Log   = require('../models/log.model');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: 'dijoga0up',
+  api_key: '941448999678395',
+  api_secret: '1JWhmHBIrQDjbBdwtuH9m0GiBpQ',
+});
+
+self.destroy = async (req, res) => {  
+  try {
+    const result = await cloudinary.uploader.destroy(public_id);
+    res.json(result);
+  } catch(e) {
+    res.json({error: e.message})
+  }
+}
+
 
 self.upload = async (req, res) => {  
   if (req.files?.file.tempFilePath) {

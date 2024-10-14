@@ -1,28 +1,96 @@
 import ProfileCard from "./common/ProfileCard";
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { Dialog, DialogContent } from "./common/Dialog";
 import LoadingState from "./common/LoadingState";
 import { CloseIcon } from "./icons";
+import {useSWRConfig} from 'swr'
+import * as utils from '../utils/utils'
 import Button from "./common/Button";
 import useSWR from 'swr'
 import Header from "./common/Header";
+import {cn, tw} from '../utils/utils';
 
 export default function ProfileMad() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const API_URL = '/api/users';
+  const API_URL_UPLOAD = '/api/upload';
+  const API_URL_DESTROY = '/api/destroy-resources';
   const { data: dataUser } = useSWR(API_URL + "/" + sessionStorage.userId, (url) => fetch(url).then(res => res.json()))
-  const [user, setUser] = useState({});
-  
+
+  const [user, setUser] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pictureLink, setPictureLink] = useState();
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isButtonsEnabled, setIsButtonsEnabled] = useState(false);
+  const ref = useRef();
+  const { mutate } = useSWRConfig()
+
+  const [isMobilePlatform, setIsMobilePlatform] = useState(window.innerWidth <= 768);
+  const [isDesktopPlatform, setIsDesktopPlatform] = useState(window.innerWidth > 768);
+
+  const onChange = async (images) => {
+    const imagesArray = []
+    images.map ((image, index) => {
+      imagesArray.push({id: index+1, url: image})
+    })
+    const totalImages = [...imagesArray, ...dataUser.pictures]
+    await mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {pictures: totalImages}), {optimisticData: false})
+    setUser(user => ({
+      ...dataUser,
+      pictures: totalImages,
+      merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
+    }))
+    setLoading(false);
+    setIsButtonsEnabled(false)
+  }
+
+  const fetcher = (url, data) => {
+    return fetch(url, {
+      method: 'POST',
+      body: data,
+    }).then((res) => res.json());
+  };
+
+
+  const removeImage = async (image) => {
+    if (window.confirm("Seguro desea eliminar esta imagen?")) {
+      const pieces = image.url.split('/');
+      const imagePublicId = pieces[pieces.length-1].split('.')[0];
+      const totalImages = dataUser.pictures.filter(picture => !picture.url.includes(imagePublicId));
+      await mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {pictures: totalImages}), {optimisticData: false})
+      await utils.postRequest(API_URL_DESTROY, imagePublicId);
+    }
+  }
+
+  const handleUpload = async () => {
+    setLoading(true)
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    try {
+      const response = await fetcher(API_URL_UPLOAD, formData);
+      console.log(response)
+      await onChange(response.imageUrls)
+    } catch (error) {
+      console.error('Error uploading the image:', error);
+    }
+  };
+
+  const showImage = (url) => {
+    setPictureLink(url)
+    setIsModalOpen(true)
+    console.log(url)
+  }
+
   useEffect(() => {
     const tempUser = {
       ...dataUser,
-      pictures: [{id: 1, url: 'https://hips.hearstapps.com/hmg-prod/images/el-columpio-64390762ceeec.jpg?resize=640:*' }, { id: 2, url: 'https://hips.hearstapps.com/hmg-prod/images/el-beso-1639396100.jpeg?resize=980:*' }, { id: 3, url: 'https://hips.hearstapps.com/hmg-prod/images/caminante-64390e7409ef4.jpg?resize=640:*' }, {id: 4, url: 'https://hips.hearstapps.com/hmg-prod/images/el-columpio-64390762ceeec.jpg?resize=640:*'}],
       merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
     }
     setUser(tempUser);
   }, [dataUser])
-
 
   return (
     <>
@@ -39,24 +107,66 @@ export default function ProfileMad() {
           <hr className="my-4 text-slate-200" />
 
           <div className="mt-4">
-          <div className="flex items-center justify-between ml-auto">
-            <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Images</h2>
-            <span>+ Agregar</span>
+            <div className="flex items-center justify-between ml-auto">
+              <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Images</h2>
+
+              <div className="flex ml-auto gap-2 h-10 overflow-hidden">
+                {
+                  isButtonsEnabled ? (
+                    <Button className="h-5 px-1 w-16" variant="destructive" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Cancelar</Button>
+                  ) : (
+                    <Button className="h-5 px-1 w-16" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
+                  )
+                }
+              </div>
             </div>
-            <div className="grid grid-cols-4 gap-4 mt-2">
+            
+          <div className={cn("flex items-center justify-end ml-auto gap-2 h-0 overflow-hidden transition-all duration-200", {'h-12': isButtonsEnabled})}>
+            <input className="hidden" ref={ref} type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files))} />
+
+            <Button className="h-5 px-1" variant="neutral" onClick={() => alert('Proximamente')}>Instagram</Button>
+            <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
+            {
+              ref.current?.value && (
+                <Button className="h-5 px-1 w-16" onClick={() => !loading ? handleUpload() : console.log('disabled')}>{loading ? 'Cargando...' : 'Guardar'}</Button>
+              )
+            }
+          </div>
+
+            <div className={cn("grid mt-2", isMobilePlatform && 'grid-cols-3 gap-2', isDesktopPlatform && 'grid-cols-8 gap-2')}>
+
               {
-                user.pictures.map(image => (
-                  <div className="rounded-lg shadow-lg max-w-32">
-                    <img src={image.url} />
-                  </div>
-                ))
+                isDesktopPlatform && (
+                  user.pictures.map(image => (
+                    <div className="grid place-items-center h-30 border p-1 border-gray-200 cursor-pointer">
+                      <img src={image.url} className="h-28 transition-transform duration-200 hover:scale-105" onClick={() => showImage(image.url)} />
+                      {/* <div className="hover:text-red-500 flex items-center justify-center mt-2" onClick={() => removeImage(image)}>Eliminar</div> */}
+                    </div>
+                  ))
+                )
+              }
+
+
+              {
+                isMobilePlatform && (
+                  user.pictures.map(image => (
+                    <div className="grid place-items-center h-30 border p-1 border-gray-200 cursor-pointer">
+                      <img src={image.url} className="flex items-center justify-center h-20 w-30 object-cover" onClick={() => showImage(image.url)} />
+                      <div className="text-red-500 flex items-center justify-center mt-2" onClick={() => removeImage(image)}>Eliminar</div>
+                    </div>
+                  ))
+                )
               }
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="flex items-center justify-between ml-auto mt-4">
             <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Merch</h2>
+
+            <Button className="ml-auto h-5 px-1 w-16" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
             
+          </div>
+          <div>
             <div className="grid grid-cols-4 gap-4 mt-2">
               {
                 user.merch.map(image => (
@@ -74,15 +184,19 @@ export default function ProfileMad() {
 
           <Dialog open={isModalOpen}>
             <DialogContent>
-              <div className="w-[500px] h-[400px]">
+              <div className="w-full h-full">
                 <div className="flex justify-end items-center text-gray-500">
                   <button onClick={() => setIsModalOpen(false)}>
                     <CloseIcon />
                   </button>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center">
-                  <Button onClick={() => setIsModalInvoiceOpen(false)}>Cerrar</Button>
+                <div className="grid place-items-center h-30 p-1 border-gray-200">
+                  <img src={pictureLink} className="py-8" />
+                </div>
+
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-4">
+                  <Button onClick={() => setIsModalOpen(false)}>Cerrar</Button>
                 </div>
               </div>
             </DialogContent>

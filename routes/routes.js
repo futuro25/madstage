@@ -22,6 +22,8 @@ router.patch('/users/:userId', (req, res, next) => userController.getUserByIdAnd
 router.delete('/users/:userId', (req, res, next) => userController.deleteUserById(req, res, next));
 router.post('/users/login', (req, res, next) => userController.login(req, res, next));
 router.post('/users/forgot-password', (req, res, next) => userController.forgotPassword(req, res, next));
+router.post('/users/upload', (req, res, next) => userController.uploadResource(req, res, next));
+
 
 // STUDENT
 router.get('/students', (req, res, next) => studentController.getStudents(req, res, next));
@@ -65,6 +67,7 @@ router.put('/billings/:billingId/creditNote', (req, res, next) => billingControl
 
 // UTILS
 router.post('/resources', (req, res, next) => utilsController.upload(req, res, next));
+router.post('/destroy-resources', (req, res, next) => utilsController.destroy(req, res, next));
 router.post('/receiptAfip', (req, res, next) => utilsController.createReceipt(req, res, next));
 router.get('/logs', (req, res, next) => utilsController.getLogs(req, res, next));
 router.get('/lastBill', (req, res, next) => utilsController.getLastBillNumberForInfo(req, res, next));
