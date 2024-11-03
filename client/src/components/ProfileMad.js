@@ -9,6 +9,7 @@ import Button from "./common/Button";
 import useSWR from 'swr'
 import Header from "./common/Header";
 import {cn, tw} from '../utils/utils';
+import InstagramImport from './InstagramImport';
 
 export default function ProfileMad() {
   const API_URL = '/api/users';
@@ -27,6 +28,7 @@ export default function ProfileMad() {
 
   const [isMobilePlatform, setIsMobilePlatform] = useState(window.innerWidth <= 768);
   const [isDesktopPlatform, setIsDesktopPlatform] = useState(window.innerWidth > 768);
+  const [showInstagramImport, setShowInstagramImport] = useState(false);
 
   const onChange = async (images) => {
     const imagesArray = []
@@ -71,7 +73,7 @@ export default function ProfileMad() {
 
     try {
       const response = await fetcher(API_URL_UPLOAD, formData);
-      console.log(response)
+      console.log("response: ", response)
       await onChange(response.imageUrls)
     } catch (error) {
       console.error('Error uploading the image:', error);
@@ -124,8 +126,9 @@ export default function ProfileMad() {
           <div className={cn("flex items-center justify-end ml-auto gap-2 h-0 overflow-hidden transition-all duration-200", {'h-12': isButtonsEnabled})}>
             <input className="hidden" ref={ref} type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files))} />
 
-            <Button className="h-5 px-1" variant="neutral" onClick={() => alert('Proximamente')}>Instagram</Button>
+            <Button className="h-5 px-1" variant="neutral" onClick={() => setShowInstagramImport(true)}>Instagram</Button>
             <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
+            {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport}/>)}
             {
               ref.current?.value && (
                 <Button className="h-5 px-1 w-16" onClick={() => !loading ? handleUpload() : console.log('disabled')}>{loading ? 'Cargando...' : 'Guardar'}</Button>
