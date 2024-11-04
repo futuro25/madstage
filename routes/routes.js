@@ -67,6 +67,7 @@ router.put('/billings/:billingId/creditNote', (req, res, next) => billingControl
 
 // UTILS
 router.post('/resources', (req, res, next) => utilsController.upload(req, res, next));
+router.post('/resourcesFromUrl', (req, res, next) => utilsController.uploadFromUrl(req, res, next));
 router.post('/destroy-resources', (req, res, next) => utilsController.destroy(req, res, next));
 router.post('/receiptAfip', (req, res, next) => utilsController.createReceipt(req, res, next));
 router.get('/logs', (req, res, next) => utilsController.getLogs(req, res, next));

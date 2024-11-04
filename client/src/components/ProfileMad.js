@@ -10,6 +10,7 @@ import useSWR from 'swr'
 import Header from "./common/Header";
 import {cn, tw} from '../utils/utils';
 import InstagramImport from './InstagramImport';
+import MerchForm from './MerchForm';
 
 export default function ProfileMad() {
   const API_URL = '/api/users';
@@ -29,6 +30,7 @@ export default function ProfileMad() {
   const [isMobilePlatform, setIsMobilePlatform] = useState(window.innerWidth <= 768);
   const [isDesktopPlatform, setIsDesktopPlatform] = useState(window.innerWidth > 768);
   const [showInstagramImport, setShowInstagramImport] = useState(false);
+  const [showMerchForm, setShowMerchForm] = useState(false);
 
   const onChange = async (images) => {
     const imagesArray = []
@@ -40,7 +42,6 @@ export default function ProfileMad() {
     setUser(user => ({
       ...dataUser,
       pictures: totalImages,
-      merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
     }))
     setLoading(false);
     setIsButtonsEnabled(false)
@@ -86,10 +87,18 @@ export default function ProfileMad() {
     console.log(url)
   }
 
+  const handleMerchSubmit = (merchData) => {
+    mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {merch: [...dataUser.merch, merchData]}), {optimisticData: false})
+    setUser(user => ({
+      ...dataUser,
+      merch: [merchData, ...dataUser.merch]
+      ,
+    }))
+  };
+
   useEffect(() => {
     const tempUser = {
       ...dataUser,
-      merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
     }
     setUser(tempUser);
   }, [dataUser])
@@ -128,7 +137,7 @@ export default function ProfileMad() {
 
             <Button className="h-5 px-1" variant="neutral" onClick={() => setShowInstagramImport(true)}>Instagram</Button>
             <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
-            {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport}/>)}
+            {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport} onChange={onChange}/>)}
             {
               ref.current?.value && (
                 <Button className="h-5 px-1 w-16" onClick={() => !loading ? handleUpload() : console.log('disabled')}>{loading ? 'Cargando...' : 'Guardar'}</Button>
@@ -166,8 +175,14 @@ export default function ProfileMad() {
           <div className="flex items-center justify-between ml-auto mt-4">
             <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Merch</h2>
 
-            <Button className="ml-auto h-5 px-1 w-16" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
-            
+            <Button className="ml-auto h-5 px-1 w-16" onClick={() => setShowMerchForm(true)}>Agregar</Button>
+              {showMerchForm && (
+                <MerchForm
+                  onSubmit={handleMerchSubmit}
+                  onClose={() => setShowMerchForm(false)}
+                />
+              )}
+
           </div>
           <div>
             <div className="grid grid-cols-4 gap-4 mt-2">

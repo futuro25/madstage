@@ -22,6 +22,23 @@ self.destroy = async (req, res) => {
 }
 
 
+self.uploadFromUrl = async (req, res) => {  
+  if (req.body.url) {
+    try {
+      const assetUrls = await Promise.all(req.body.url.map(async (url) => {
+        const url2 = await utils.uploadImage(url);
+        return url2.url;
+      }));
+      return res.json({ uploads: assetUrls });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      return res.status(500).json({ error: 'Error uploading images' });
+    }
+  } else {
+    return res.status(400).json({ error: 'No URL provided' });
+  }
+};
+
 self.upload = async (req, res) => {  
   if (req.files?.file.tempFilePath) {
     const assetUrl = await utils.uploadImage(req.files.file.tempFilePath)

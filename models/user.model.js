@@ -26,6 +26,7 @@ var userSchema = new Schema({
             'id': { type: Number, required: false },
             'name': { type: String, required: false },
             'price': { type: String, required: false },
+            'description': { type: String, required: false },
             'url': { type: String, required: false },
         }
     ],

@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 
-const InstagramImport = ({onClose}) => {
+const InstagramImport = ({ onClose, onChange }) => {
   const [username, setUsername] = useState('');
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
 
   const handleImport = async () => {
     try {
-      
       const clientId = '541174758644604';
       const client_secret = "8348776397ce214503007c958e82d2f5"
       const redirectUri = encodeURIComponent(window.location.href);
       const scope = 'user_profile,user_media';
       const responseType = 'code';
-  
+
       const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${responseType}`;
       
+      // Abrir un popup con la URL de autorización
+      //window.open(authUrl, 'InstagramAuth', 'width=600,height=700');
+
       // Reemplaza con tu token de acceso obtenido a través del flujo de autenticación
       const token = 'IGQWROTTNRQjlNX3hSVU81aUJNVnpNdk5IejRXc2ZAMa3F1WE1KaXMwSXVabkVjaEJtTlhRc0o5eVRUN3lZAU09DVXU1RzdtbmN4RXlMMlJuTFoxcUZApNFRIM0lHTlNSRnpKaldhRDBWVU5WS1ZAWX1lYamV3MjRCTDAZD';
       
@@ -26,8 +28,8 @@ const InstagramImport = ({onClose}) => {
       const mediaResponse = await fetch(`https://graph.instagram.com/${userId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&access_token=${token}`);
       const mediaData = await mediaResponse.json();
 
-      const images = mediaData.data.filter(media => media.media_type != 'IMAGE').map(media => ({
-        url: media.media_type == "CAROUSEL_ALBUM"?media.media_url:media.thumbnail_url,
+      const images = mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
+        url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
         caption: media.caption,
       }));
 
@@ -50,24 +52,29 @@ const InstagramImport = ({onClose}) => {
     setSelectedImages(allImageUrls);
   };
 
-  const handleLogSelectedImages = () => {
-    selectedImages.forEach((url) => {
-      const formData = new FormData();
-      formData.append('images', url);
-
-    
-      console.log("fetch: ", fetch('/api/upload', {
+  const handleLogSelectedImages = async () => {
+    const responseUrl = await fetch('/api/resourcesFromUrl', {
         method: 'POST',
-        body: formData,
-      }).then((res) => res.json())
-    );
-    }
-  );
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          url: selectedImages
+        })
+      }).then((res) => res.json()).then(data=>{
+          // Llamar a onChange con la URL de la imagen
+          if (onChange) {
+            onChange(data.uploads);
+          }
+        }
+      );
+      onClose(false);
   };
 
   const close = () => {
     onClose(false);
-  } 
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
