@@ -9,7 +9,7 @@ import Button from "./common/Button";
 import useSWR from 'swr'
 import Header from "./common/Header";
 import {cn, tw} from '../utils/utils';
-import InstagramImport from './InstagramImport';
+import {InstagramImport,login} from './InstagramImport';
 import MerchForm from './MerchForm';
 
 export default function ProfileMad() {
@@ -88,10 +88,11 @@ export default function ProfileMad() {
   }
 
   const handleMerchSubmit = (merchData) => {
-    mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {merch: [...dataUser.merch, merchData]}), {optimisticData: false})
+    dataUser.merch=[...dataUser.merch, merchData]
+    mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {merch: dataUser.merch}), {optimisticData: false})
     setUser(user => ({
       ...dataUser,
-      merch: [merchData, ...dataUser.merch]
+      merch: dataUser.merch
       ,
     }))
   };
@@ -135,7 +136,7 @@ export default function ProfileMad() {
           <div className={cn("flex items-center justify-end ml-auto gap-2 h-0 overflow-hidden transition-all duration-200", {'h-12': isButtonsEnabled})}>
             <input className="hidden" ref={ref} type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files))} />
 
-            <Button className="h-5 px-1" variant="neutral" onClick={() => setShowInstagramImport(true)}>Instagram</Button>
+            <Button className="h-5 px-1" variant="neutral" onClick={() => {login(); setShowInstagramImport(true)}}>Instagram</Button>
             <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
             {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport} onChange={onChange}/>)}
             {
