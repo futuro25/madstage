@@ -49,7 +49,6 @@ const InstagramImport = ({ onClose, onChange })  => {
       .then(response => response.json())
       .then(data => {
         const token = data.access_token;
-        console.log('Access token:', token);
         if(token) setToken(token);
       })
       .catch(error => {
@@ -64,7 +63,7 @@ const InstagramImport = ({ onClose, onChange })  => {
       fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${token}`)
         .then(response => response.json())
         .then(data=>data.id)
-        .then(userId => fetch(`https://graph.instagram.com/${userId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&access_token=${token}`)
+        .then(userId => fetch(`https://graph.instagram.com/${userId}/media?fields=media_type,media_url,thumbnail_url&access_token=${token}`)
                     .then(response => response.json()))
                     .then(mediaData =>  {
                         const images = mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
@@ -89,7 +88,7 @@ const InstagramImport = ({ onClose, onChange })  => {
     setSelectedImages(allImageUrls);
   };
 
-  const handleLogSelectedImages = async () => {
+  const handleUploadSelectedImages = async () => {
     const responseUrl = await fetch('/api/resourcesFromUrl', {
         method: 'POST',
         headers: {
@@ -134,7 +133,7 @@ const InstagramImport = ({ onClose, onChange })  => {
             ))}
           </div>
         </div>
-        <button onClick={handleLogSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4">Log URLs de imágenes seleccionadas</button>
+        <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4">Agregar imágenes seleccionadas</button>
       </div>
     </div>
   );
