@@ -113,9 +113,9 @@ export default function ProfileMad() {
               <div className="flex ml-auto gap-2 h-10 overflow-hidden">
                 {
                   isButtonsEnabled ? (
-                    <Button className="h-5 px-1 w-16" variant="destructive" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Cancelar</Button>
+                    <Button className="h-5 px-1 w-16 text-xs" variant="destructive" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Cancelar</Button>
                   ) : (
-                    <Button className="h-5 px-1 w-16" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
+                    <Button className="h-5 px-1 w-16 text-xs" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
                   )
                 }
               </div>
@@ -163,7 +163,7 @@ export default function ProfileMad() {
           <div className="flex items-center justify-between ml-auto mt-4">
             <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Merch</h2>
 
-            <Button className="ml-auto h-5 px-1 w-16" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
+            <Button className="ml-auto h-5 px-1 w-16 text-xs" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
             
           </div>
           <div>
