@@ -9,6 +9,8 @@ import Button from "./common/Button";
 import useSWR from 'swr'
 import Header from "./common/Header";
 import {cn, tw} from '../utils/utils';
+import {InstagramImport,login} from './InstagramImport';
+import MerchForm from './MerchForm';
 
 export default function ProfileMad() {
   const API_URL = '/api/users';
@@ -27,6 +29,8 @@ export default function ProfileMad() {
 
   const [isMobilePlatform, setIsMobilePlatform] = useState(window.innerWidth <= 768);
   const [isDesktopPlatform, setIsDesktopPlatform] = useState(window.innerWidth > 768);
+  const [showInstagramImport, setShowInstagramImport] = useState(false);
+  const [showMerchForm, setShowMerchForm] = useState(false);
 
   const onChange = async (images) => {
     const imagesArray = []
@@ -38,7 +42,6 @@ export default function ProfileMad() {
     setUser(user => ({
       ...dataUser,
       pictures: totalImages,
-      merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
     }))
     setLoading(false);
     setIsButtonsEnabled(false)
@@ -71,7 +74,7 @@ export default function ProfileMad() {
 
     try {
       const response = await fetcher(API_URL_UPLOAD, formData);
-      console.log(response)
+      console.log("response: ", response)
       await onChange(response.imageUrls)
     } catch (error) {
       console.error('Error uploading the image:', error);
@@ -84,10 +87,19 @@ export default function ProfileMad() {
     console.log(url)
   }
 
+  const handleMerchSubmit = (merchData) => {
+    dataUser.merch=[...dataUser.merch, merchData]
+    mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {merch: dataUser.merch}), {optimisticData: false})
+    setUser(user => ({
+      ...dataUser,
+      merch: dataUser.merch
+      ,
+    }))
+  };
+
   useEffect(() => {
     const tempUser = {
       ...dataUser,
-      merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}],
     }
     setUser(tempUser);
   }, [dataUser])
@@ -113,9 +125,9 @@ export default function ProfileMad() {
               <div className="flex ml-auto gap-2 h-10 overflow-hidden">
                 {
                   isButtonsEnabled ? (
-                    <Button className="h-5 px-1 w-16 text-xs" variant="destructive" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Cancelar</Button>
+                    <Button className="h-5 px-1 w-16" variant="destructive" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Cancelar</Button>
                   ) : (
-                    <Button className="h-5 px-1 w-16 text-xs" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
+                    <Button className="h-5 px-1 w-16" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
                   )
                 }
               </div>
@@ -124,8 +136,9 @@ export default function ProfileMad() {
           <div className={cn("flex items-center justify-end ml-auto gap-2 h-0 overflow-hidden transition-all duration-200", {'h-12': isButtonsEnabled})}>
             <input className="hidden" ref={ref} type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files))} />
 
-            <Button className="h-5 px-1" variant="neutral" onClick={() => alert('Proximamente')}>Instagram</Button>
+            <Button className="h-5 px-1" variant="neutral" onClick={() => {login(); setShowInstagramImport(true)}}>Instagram</Button>
             <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
+            {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport} onChange={onChange}/>)}
             {
               ref.current?.value && (
                 <Button className="h-5 px-1 w-16" onClick={() => !loading ? handleUpload() : console.log('disabled')}>{loading ? 'Cargando...' : 'Guardar'}</Button>
@@ -163,8 +176,14 @@ export default function ProfileMad() {
           <div className="flex items-center justify-between ml-auto mt-4">
             <h2 className="inline-block font-extrabold text-gray-800 tracking-tight text-xl">Merch</h2>
 
-            <Button className="ml-auto h-5 px-1 w-16 text-xs" onClick={() => setIsButtonsEnabled(!isButtonsEnabled)}>Agregar</Button>
-            
+            <Button className="ml-auto h-5 px-1 w-16" onClick={() => setShowMerchForm(true)}>Agregar</Button>
+              {showMerchForm && (
+                <MerchForm
+                  onSubmit={handleMerchSubmit}
+                  onClose={() => setShowMerchForm(false)}
+                />
+              )}
+
           </div>
           <div>
             <div className="grid grid-cols-4 gap-4 mt-2">

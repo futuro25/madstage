@@ -10,6 +10,7 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const userController     = require('./controllers/UserController');
+const instagramController= require('./controllers/InstagramController.js');
 
 cloudinary.config({
   cloud_name: 'dijoga0up',
@@ -52,6 +53,9 @@ app.use(bodyParser.json());
 app.get('/api/status', (req, res) => {
   res.json({message: 'ok'})
 });
+
+app.use('/instagram', instagramController);
+
 
 app.use('/api', routes)
 
