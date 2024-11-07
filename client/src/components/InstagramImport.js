@@ -110,7 +110,7 @@ const getLongToken = (() => {
 });
 
 const InstagramImport = ({ onClose, onChange }) => {
-
+  const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -146,6 +146,7 @@ const InstagramImport = ({ onClose, onChange }) => {
   };
 
   const handleUploadSelectedImages = async () => {
+    setiIsLoadingSubmit(true);
     const responseUrl = await fetch('/api/resourcesFromUrl', {
       method: 'POST',
       headers: {
@@ -195,7 +196,7 @@ const InstagramImport = ({ onClose, onChange }) => {
             ))}
           </div>
         </div>
-        <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4">Agregar imágenes seleccionadas</button>
+        {token && <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4" disabled={isLoadingSubmit}>{isLoadingSubmit ? 'Subiendo...' : 'Agregar imágenes seleccionadas'}</button>}
       </div>
     </div>
   );

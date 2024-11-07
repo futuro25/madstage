@@ -2,6 +2,11 @@ const config = {
   mongo_uri: 'mongodb+srv://madstagedbuser:madstagepassword@madstage.vqiomwa.mongodb.net/madstage?retryWrites=true&w=majority',
   api_url: 'https://madstage-a16bef77c5b8.herokuapp.com',
   env: 'prod',
+  instagram: {
+    clientId: "527830203351155",
+    clientSecret: "cfc734f1793a45de2bf413b6241f1d48",
+    redirectUri: "https://madstage-a16bef77c5b8.herokuapp.com/login",
+  },
   mercadopago: {
     appId: "4605538507969464",
     clientId: "4605538507969464",

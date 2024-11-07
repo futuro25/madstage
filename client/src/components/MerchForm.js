@@ -5,6 +5,7 @@ import Button from "./common/Button";
 const MerchForm = ({ onClose, onSubmit }) => {
   const API_URL_UPLOAD = '/api/upload';
   const ref = useRef();
+  const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -42,6 +43,7 @@ const MerchForm = ({ onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setiIsLoadingSubmit(true);
     var url = await handleUpload();
 
     const merchData = {
@@ -89,7 +91,7 @@ const MerchForm = ({ onClose, onSubmit }) => {
           <div className="mb-4">
             <input className="" ref={ref} type="file" onChange={(e) => setFiles(Array.from(e.target.files))} />
           </div>
-          <Button type="button" onClick={handleSubmit}>Agregar</Button>
+          <Button type="button" onClick={handleSubmit} disabled={isLoadingSubmit}>{isLoadingSubmit ? 'Guardando...' : 'Guardar'}</Button>
         </form>
       </div>
     </div>

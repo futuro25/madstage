@@ -181,7 +181,7 @@ export default function ProfileMad() {
                   user.pictures.map(image => (
                     <div className="grid place-items-center h-30 border p-1 border-gray-200 cursor-pointer">
                       <img src={image.url} className="flex items-center justify-center h-20 w-30 object-cover" onClick={() => showImage(image.url)} />
-                      <div className="text-red-500 flex items-center justify-center mt-2" onClick={() => removeImage(image)}>Eliminar</div>
+                      <Button className="!bg-red-300 text-black-500 flex items-center justify-center mt-2" onClick={() => removeImage(image)}>Eliminar</Button>
                     </div>
                   ))
                 )
@@ -211,7 +211,7 @@ export default function ProfileMad() {
                     </div>
                     <div>{image.name}</div>
                     <div>${image.price}</div>
-                    <div className="text-red-500 flex items-center justify-center mt-2" onClick={() => removeMerch(image)}>Eliminar</div>
+                    <Button className="!bg-red-300 text-black-500 flex items-center justify-center mt-2" onClick={() => removeMerch(image)}>Eliminar</Button>
                   </div>
                 ))
               }
