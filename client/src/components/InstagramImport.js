@@ -7,10 +7,11 @@ var newWindow;
 var getCode;
 var checkUrl;
 var shortToLongToken;
+var imageLoaded = false;
 
-var shortToken;
-var longToken;
-var token;
+var shortToken = sessionStorage.getItem('shortToken');
+var longToken = sessionStorage.getItem('longToken');
+var token = sessionStorage.getItem('token');
 
 const login = () => {
   code = null;
@@ -20,8 +21,11 @@ const login = () => {
     + `&response_type=code`;
 
   newWindow = window.open(location, 'InstagramAuth', 'width=600,height=700');
-
+  imageLoaded=false;
   clearInterval(getCode);
+  clearInterval(checkUrl);
+  clearInterval(shortToLongToken);
+
   getCode = setInterval(() => {
     try {
       code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
@@ -32,12 +36,10 @@ const login = () => {
     } catch (error) { }
   }, 100);
 
-  clearInterval(checkUrl);
   checkUrl = setInterval(() => {
     getShortToken();
   }, 2000);
 
-  clearInterval(shortToLongToken);
   shortToLongToken = setInterval(() => {
     getLongToken();
   }, 10000);
@@ -45,9 +47,6 @@ const login = () => {
 
 const getShortToken = () => {
   try {
-    try {
-      code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
-    } catch (error) { }
     if (code) {
       // Realiza las acciones necesarias aquí, como obtener el código de autorización
       console.log('Authorization code:', code);
@@ -97,7 +96,7 @@ const getShortToken = () => {
 }
 
 const getLongToken = (() => {
-  if (shortToken) {
+  if (shortToken && false) {
     fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${config.instagram.clientSecret}&access_token=${shortToken}`)
       .then(response => response.json())
       .then(data => {
@@ -115,8 +114,8 @@ const InstagramImport = ({ onClose, onChange }) => {
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
 
-  useEffect(() => {
-    if (token && images.length === 0) {
+  setInterval(() => {
+    if (token && !imageLoaded) {
       fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${token}`)
         .then(response => response.json())
         .then(data => data.id)
@@ -127,10 +126,11 @@ const InstagramImport = ({ onClose, onChange }) => {
             url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
             caption: media.caption,
           }))
+          imageLoaded=true;
           setImages(images);
         });
     }
-  }, [token]);
+  }, 1000);
 
   const handleCheckboxChange = (url) => {
     setSelectedImages((prevSelected) =>
@@ -167,7 +167,10 @@ const InstagramImport = ({ onClose, onChange }) => {
 
   const close = () => {
     onClose(false);
+
+    clearInterval(getCode);
     clearInterval(checkUrl);
+    clearInterval(shortToLongToken);
   };
 
   return (
