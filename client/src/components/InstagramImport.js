@@ -1,6 +1,7 @@
 import { Code } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { config } from '../config';
+import useSWR from 'swr'
 
 var code;
 var newWindow;
@@ -21,7 +22,7 @@ const login = () => {
     + `&response_type=code`;
 
   newWindow = window.open(location, 'InstagramAuth', 'width=600,height=700');
-  imageLoaded=false;
+  imageLoaded = false;
   clearInterval(getCode);
   clearInterval(checkUrl);
   clearInterval(shortToLongToken);
@@ -109,7 +110,8 @@ const getLongToken = (() => {
   }
 });
 
-const InstagramImport = ({ onClose, onChange }) => {
+const InstagramImport = ({ onClose, onChange, userToken }) => {
+  token = userToken;
   const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
@@ -126,7 +128,7 @@ const InstagramImport = ({ onClose, onChange }) => {
             url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
             caption: media.caption,
           }))
-          imageLoaded=true;
+          imageLoaded = true;
           setImages(images);
         });
     }

@@ -154,7 +154,7 @@ export default function ProfileMad() {
 
             <Button className="h-5 px-1" variant="neutral" onClick={() => {setShowInstagramImport(true)}}>Instagram</Button>
             <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
-            {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport} onChange={onChange}/>)}
+            {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport} onChange={onChange} userToken={dataUser.token}/>)}
             {
               ref.current?.value && (
                 <Button className="h-5 px-1 w-16" onClick={() => !loading ? handleUpload() : console.log('disabled')}>{loading ? 'Cargando...' : 'Guardar'}</Button>
