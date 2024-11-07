@@ -180,24 +180,27 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
       <div className="bg-white p-6 rounded-lg w-11/12 max-w-4xl max-h-90vh relative">
         <button onClick={close} className="absolute top-4 right-4 text-xl font-bold">X</button>
         <h2 className="text-2xl font-bold mb-4">Importar imágenes desde Instagram</h2>
-        {token && <button onClick={handleSelectAll} className="bg-yellow-500 text-white px-4 py-2 rounded mb-4 ml-2">Seleccionar todas</button>}
         {!token && <button onClick={login} className="bg-blue-500 text-white px-4 py-2 rounded mb-4 ml-2">Login</button>}
-        <div className="max-h-96 overflow-y-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {images?images.map((image) => (
-              <div key={image.url} className="relative cursor-pointer" onClick={() => handleCheckboxChange(image.url)}>
-                <img src={image.url} alt="Instagram" className="w-full h-auto rounded" />
-                <input
-                  type="checkbox"
-                  checked={selectedImages.includes(image.url)}
-                  onChange={() => handleCheckboxChange(image.url)}
-                  className="absolute top-2 right-2 pointer-events-none"
-                />
+        {token && (
+          <div>
+            <button onClick={handleSelectAll} className="bg-yellow-500 text-white px-4 py-2 rounded mb-4 ml-2">Seleccionar todas</button>
+            <div className="max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {(images ? images.map((image) => (
+                  <div key={image.url} className="relative cursor-pointer" onClick={() => handleCheckboxChange(image.url)}>
+                    <img src={image.url} alt="Instagram" className="w-full h-auto rounded" />
+                    <input
+                      type="checkbox"
+                      checked={selectedImages.includes(image.url)}
+                      onChange={() => handleCheckboxChange(image.url)}
+                      className="absolute top-2 right-2 pointer-events-none"
+                    />
+                  </div>
+                )) : <div className="text-center">Cargando imágenes...</div>)}
               </div>
-            )):<div className="text-center">Cargando imágenes...</div>}
-          </div>
-        </div>
-        {token && <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4" disabled={isLoadingSubmit}>{isLoadingSubmit ? 'Subiendo...' : 'Agregar imágenes seleccionadas'}</button>}
+            </div>
+            <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4" disabled={isLoadingSubmit}>{isLoadingSubmit ? 'Subiendo...' : 'Agregar imágenes seleccionadas'}</button>
+          </div>)}
       </div>
     </div>
   );
