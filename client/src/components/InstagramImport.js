@@ -1,25 +1,45 @@
 import { Code } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { config } from '../config';
 
 var code;
 var newWindow;
-const clientId = '563145449698839';
-const clientSecret = '2795530e6b87a23ac35d2708763dd1e9';
-const redirectUri = 'https://madstage-a16bef77c5b8.herokuapp.com/login';
+var getCode;
+var checkUrl;
+var shortToLongToken;
 
+var shortToken;
+var longToken;
+var token;
 
 const login = () => {
   code = null;
-  const location = `https://api.instagram.com/oauth/authorize?client_id=${clientId}`
-    + `&redirect_uri=${redirectUri}`
+  const location = `https://api.instagram.com/oauth/authorize?client_id=${config.instagram.clientId}`
+    + `&redirect_uri=${config.instagram.redirectUri}`
     + `&scope=user_profile,user_media`
     + `&response_type=code`;
 
   newWindow = window.open(location, 'InstagramAuth', 'width=600,height=700');
-  
+
+  clearInterval(getCode);
+  getCode = setInterval(() => {
+    try {
+      code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
+    } catch (error) { }
+  }, 100);
+
+  clearInterval(checkUrl);
+  checkUrl = setInterval(() => {
+    getShortToken();
+  }, 1000);
+
+  clearInterval(shortToLongToken);
+  shortToLongToken = setInterval(() => {
+    getLongToken();
+  }, 10000);
 };
 
-const checkUrl = setInterval(() => {
+const getShortToken = () => {
   try {
     try {
       code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
@@ -35,10 +55,10 @@ const checkUrl = setInterval(() => {
         const grantType = 'authorization_code';
 
         const urlencoded = new URLSearchParams();
-        urlencoded.append("client_id", clientId);
-        urlencoded.append("client_secret", clientSecret);
+        urlencoded.append("client_id", config.instagram.clientId);
+        urlencoded.append("client_secret", config.instagram.clientSecret);
         urlencoded.append("grant_type", grantType);
-        urlencoded.append("redirect_uri", redirectUri);
+        urlencoded.append("redirect_uri", config.instagram.redirectUri);
         urlencoded.append("code", code);
 
         const myHeaders = new Headers();
@@ -55,16 +75,11 @@ const checkUrl = setInterval(() => {
           .then(data => {
             const shortLivedToken = data.access_token;
             if (shortLivedToken) {
-              setToken(shortLivedToken);
-              // Intercambiar el token de corta duración por uno de larga duración
-              fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortLivedToken}`)
-                .then(response => response.json())
-                .then(data => {
-                  const longLivedToken = data.access_token;
-                  console.log('Long-lived token:', longLivedToken);
-                  setToken(longLivedToken);
-                  clearInterval(checkUrl);
-                })
+              shortToken = shortLivedToken;
+              token = shortLivedToken;
+              sessionStorage.setItem('shortToken', shortLivedToken);
+              sessionStorage.setItem('token', shortLivedToken);
+              clearInterval(checkUrl);
             }
           })
           .catch(error => {
@@ -76,10 +91,24 @@ const checkUrl = setInterval(() => {
   } catch (error) {
     // Ignorar errores de CORS
   }
-}, 5000); // Verificar cada segundo
+}
+
+const getLongToken = (() => {
+  if (shortToken) {
+    fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${config.instagram.clientSecret}&access_token=${shortToken}`)
+      .then(response => response.json())
+      .then(data => {
+        const longLivedToken = data.access_token;
+        console.log('Long-lived token:', longLivedToken);
+        longToken = longLivedToken;
+        token = longToken;
+        clearInterval(shortToLongToken);
+      })
+  }
+});
 
 const InstagramImport = ({ onClose, onChange }) => {
-  const [token, setToken] = useState(null);
+  
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -135,6 +164,7 @@ const InstagramImport = ({ onClose, onChange }) => {
 
   const close = () => {
     onClose(false);
+    clearInterval(checkUrl);
   };
 
   return (
@@ -142,8 +172,8 @@ const InstagramImport = ({ onClose, onChange }) => {
       <div className="bg-white p-6 rounded-lg w-11/12 max-w-4xl max-h-90vh relative">
         <button onClick={close} className="absolute top-4 right-4 text-xl font-bold">X</button>
         <h2 className="text-2xl font-bold mb-4">Importar imágenes desde Instagram</h2>
-        <button onClick={handleSelectAll} className="bg-yellow-500 text-white px-4 py-2 rounded mb-4 ml-2">Seleccionar todas</button>
-        <button onClick={login} className="bg-blue-500 text-white px-4 py-2 rounded mb-4 ml-2">Login</button>
+        {token && <button onClick={handleSelectAll} className="bg-yellow-500 text-white px-4 py-2 rounded mb-4 ml-2">Seleccionar todas</button>}
+        {!token && <button onClick={login} className="bg-blue-500 text-white px-4 py-2 rounded mb-4 ml-2">Login</button>}
         <div className="max-h-96 overflow-y-auto">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {images.map((image) => (

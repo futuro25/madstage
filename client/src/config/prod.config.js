@@ -7,6 +7,11 @@ export const config = {
   isLocal: false,
   isDevelop: false,
   isProduction: true,
+  instagram: {
+    clientId: "4605538507969464",
+    clientSecret: "",
+    redirectUri: "http://localhost:3000/instagram",
+  },
   mercadopago: {
     appId: "4605538507969464",
     clientId: "4605538507969464",
