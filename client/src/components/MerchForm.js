@@ -44,6 +44,8 @@ const MerchForm = ({ onClose, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    handleUpload();
+
     const merchData = {
       name,
       price,
@@ -88,11 +90,6 @@ const MerchForm = ({ onClose, onSubmit }) => {
           </div>
           <div className="mb-4">
             <input className="" ref={ref} type="file" onChange={(e) => setFiles(Array.from(e.target.files))} />
-            {
-              ref.current?.value && (
-                <Button type="button" className="h-5 px-1 w-16" onClick={() => !loading ? handleUpload() : console.log('disabled')}>{loading ? 'Cargando...' : 'Guardar'}</Button>
-              )
-            }
           </div>
           <Button type="button" onClick={handleSubmit}>Agregar</Button>
         </form>

@@ -62,8 +62,24 @@ export default function ProfileMad() {
       const totalImages = dataUser.pictures.filter(picture => !picture.url.includes(imagePublicId));
       await mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, {pictures: totalImages}), {optimisticData: false})
       await utils.postRequest(API_URL_DESTROY, imagePublicId);
+      setUser(user => ({
+        ...dataUser,
+        pictures: totalImages,
+      }));
     }
   }
+
+  const removeMerch = async (merchItem) => {
+    if (window.confirm("Seguro desea eliminar esta mercancía?")) {
+      const totalMerch = dataUser.merch.filter(item => item !== merchItem);
+      await mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, { merch: totalMerch }), { optimisticData: false });
+      setUser(user => ({
+        ...dataUser,
+        merch: totalMerch,
+      }));
+    }
+  };
+
 
   const handleUpload = async () => {
     setLoading(true)
@@ -195,6 +211,7 @@ export default function ProfileMad() {
                     </div>
                     <div>{image.name}</div>
                     <div>${image.price}</div>
+                    <div className="text-red-500 flex items-center justify-center mt-2" onClick={() => removeMerch(image)}>Eliminar</div>
                   </div>
                 ))
               }
