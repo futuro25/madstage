@@ -9,6 +9,7 @@ var getCode;
 var checkUrl;
 var shortToLongToken;
 var imageLoaded = false;
+var images;
 
 var shortToken = sessionStorage.getItem('shortToken');
 var longToken = sessionStorage.getItem('longToken');
@@ -113,7 +114,6 @@ const getLongToken = (() => {
 const InstagramImport = ({ onClose, onChange, userToken }) => {
   token = userToken;
   const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
-  const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
 
   setInterval(() => {
@@ -124,12 +124,11 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
         .then(userId => fetch(`https://graph.instagram.com/${userId}/media?fields=media_type,media_url,thumbnail_url&access_token=${token}`)
           .then(response => response.json()))
         .then(mediaData => {
-          const images = mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
+          images = mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
             url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
             caption: media.caption,
           }))
           imageLoaded = true;
-          setImages(images);
         });
     }
   }, 1000);
@@ -185,7 +184,7 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
         {!token && <button onClick={login} className="bg-blue-500 text-white px-4 py-2 rounded mb-4 ml-2">Login</button>}
         <div className="max-h-96 overflow-y-auto">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {images.map((image) => (
+            {images?images.map((image) => (
               <div key={image.url} className="relative cursor-pointer" onClick={() => handleCheckboxChange(image.url)}>
                 <img src={image.url} alt="Instagram" className="w-full h-auto rounded" />
                 <input
@@ -195,7 +194,7 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
                   className="absolute top-2 right-2 pointer-events-none"
                 />
               </div>
-            ))}
+            )):<div className="text-center">Cargando imágenes...</div>}
           </div>
         </div>
         {token && <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4" disabled={isLoadingSubmit}>{isLoadingSubmit ? 'Subiendo...' : 'Agregar imágenes seleccionadas'}</button>}
