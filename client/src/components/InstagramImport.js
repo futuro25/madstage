@@ -2,77 +2,81 @@ import { Code } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 var code;
+var newWindow;
 const clientId = '563145449698839';
-const clientSecret = 'e1bc976972340c3aafb62f2057953539';
+const clientSecret = '2795530e6b87a23ac35d2708763dd1e9';
 const redirectUri = 'https://madstage-a16bef77c5b8.herokuapp.com/login';
 
 
 const login = () => {
+  code = null;
   const location = `https://api.instagram.com/oauth/authorize?client_id=${clientId}`
     + `&redirect_uri=${redirectUri}`
     + `&scope=user_profile,user_media`
     + `&response_type=code`;
 
-  const asd = window.open(location, 'InstagramAuth', 'width=600,height=700');
-  const checkUrl = setInterval(() => {
-    try {
-      try {
-        code = asd.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
-      } catch (error) { }
-      if (code) {
-        asd.close();
-        // Realiza las acciones necesarias aquí, como obtener el código de autorización
-        console.log('Authorization code:', code);
-        // Puedes llamar a una función para intercambiar el código por un token de acceso
-
-
-        if (code) {
-          const grantType = 'authorization_code';
-
-          const urlencoded = new URLSearchParams();
-          urlencoded.append("client_id", clientId);
-          urlencoded.append("client_secret", clientSecret);
-          urlencoded.append("grant_type", grantType);
-          urlencoded.append("redirect_uri", redirectUri);
-          urlencoded.append("code", code);
-
-          const myHeaders = new Headers();
-          myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-          const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: urlencoded,
-            redirect: "follow"
-          };
-          fetch("/instagram/oauth/access_token", requestOptions)
-            .then(response => response.json())
-            .then(data => {
-              const shortLivedToken = data.access_token;
-              if (shortLivedToken) {
-                setToken(shortLivedToken);
-                // Intercambiar el token de corta duración por uno de larga duración
-                fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortLivedToken}`)
-                  .then(response => response.json())
-                  .then(data => {
-                    const longLivedToken = data.access_token;
-                    console.log('Long-lived token:', longLivedToken);
-                    setToken(longLivedToken);
-                    clearInterval(checkUrl);
-                  })
-              }
-            })
-            .catch(error => {
-              console.error('Error fetching access token:', error);
-            });
-        }
-
-      }
-    } catch (error) {
-      // Ignorar errores de CORS
-    }
-  }, 2000); // Verificar cada segundo
+  newWindow = window.open(location, 'InstagramAuth', 'width=600,height=700');
+  
 };
+
+const checkUrl = setInterval(() => {
+  try {
+    try {
+      code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
+    } catch (error) { }
+    if (code) {
+      newWindow.close();
+      // Realiza las acciones necesarias aquí, como obtener el código de autorización
+      console.log('Authorization code:', code);
+      // Puedes llamar a una función para intercambiar el código por un token de acceso
+
+
+      if (code) {
+        const grantType = 'authorization_code';
+
+        const urlencoded = new URLSearchParams();
+        urlencoded.append("client_id", clientId);
+        urlencoded.append("client_secret", clientSecret);
+        urlencoded.append("grant_type", grantType);
+        urlencoded.append("redirect_uri", redirectUri);
+        urlencoded.append("code", code);
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+        const requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: urlencoded,
+          redirect: "follow"
+        };
+        fetch("/instagram/oauth/access_token", requestOptions)
+          .then(response => response.json())
+          .then(data => {
+            const shortLivedToken = data.access_token;
+            if (shortLivedToken) {
+              setToken(shortLivedToken);
+              // Intercambiar el token de corta duración por uno de larga duración
+              fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${clientSecret}&access_token=${shortLivedToken}`)
+                .then(response => response.json())
+                .then(data => {
+                  const longLivedToken = data.access_token;
+                  console.log('Long-lived token:', longLivedToken);
+                  setToken(longLivedToken);
+                  clearInterval(checkUrl);
+                })
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching access token:', error);
+          });
+      }
+
+    }
+  } catch (error) {
+    // Ignorar errores de CORS
+  }
+}, 5000); // Verificar cada segundo
 
 const InstagramImport = ({ onClose, onChange }) => {
   const [token, setToken] = useState(null);
