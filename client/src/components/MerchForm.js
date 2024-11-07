@@ -42,9 +42,9 @@ const MerchForm = ({ onClose, onSubmit }) => {
 
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    handleUpload();
+    await handleUpload();
 
     const merchData = {
       name,

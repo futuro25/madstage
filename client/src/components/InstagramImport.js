@@ -8,8 +8,6 @@ const redirectUri = 'https://madstage-a16bef77c5b8.herokuapp.com/login';
 
 
 const login = () => {
-  var code = window.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
-  if (code) return;
   const location = `https://api.instagram.com/oauth/authorize?client_id=${clientId}`
     + `&redirect_uri=${redirectUri}`
     + `&scope=user_profile,user_media`
@@ -30,7 +28,6 @@ const login = () => {
 
         if (code) {
           const grantType = 'authorization_code';
-          const redirectUri = 'https://madstage-a16bef77c5b8.herokuapp.com/login';
 
           const urlencoded = new URLSearchParams();
           urlencoded.append("client_id", clientId);
@@ -74,7 +71,7 @@ const login = () => {
     } catch (error) {
       // Ignorar errores de CORS
     }
-  }, 10); // Verificar cada segundo
+  }, 2000); // Verificar cada segundo
 };
 
 const InstagramImport = ({ onClose, onChange }) => {

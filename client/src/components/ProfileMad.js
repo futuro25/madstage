@@ -152,7 +152,7 @@ export default function ProfileMad() {
           <div className={cn("flex items-center justify-end ml-auto gap-2 h-0 overflow-hidden transition-all duration-200", {'h-12': isButtonsEnabled})}>
             <input className="hidden" ref={ref} type="file" multiple onChange={(e) => setFiles(Array.from(e.target.files))} />
 
-            <Button className="h-5 px-1" variant="neutral" onClick={() => {login(); setShowInstagramImport(true)}}>Instagram</Button>
+            <Button className="h-5 px-1" variant="neutral" onClick={() => {setShowInstagramImport(true)}}>Instagram</Button>
             <Button className="h-5 px-1" variant="neutral" onClick={() => ref.current?.click()}>Galeria</Button>
             {showInstagramImport && (<InstagramImport onClose={setShowInstagramImport} onChange={onChange}/>)}
             {
