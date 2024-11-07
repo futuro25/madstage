@@ -25,13 +25,17 @@ const login = () => {
   getCode = setInterval(() => {
     try {
       code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
+      if (code) {
+        clearInterval(getCode);
+        newWindow.close();
+      }
     } catch (error) { }
   }, 100);
 
   clearInterval(checkUrl);
   checkUrl = setInterval(() => {
     getShortToken();
-  }, 1000);
+  }, 2000);
 
   clearInterval(shortToLongToken);
   shortToLongToken = setInterval(() => {
@@ -45,7 +49,6 @@ const getShortToken = () => {
       code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
     } catch (error) { }
     if (code) {
-      newWindow.close();
       // Realiza las acciones necesarias aquí, como obtener el código de autorización
       console.log('Authorization code:', code);
       // Puedes llamar a una función para intercambiar el código por un token de acceso
@@ -108,7 +111,7 @@ const getLongToken = (() => {
 });
 
 const InstagramImport = ({ onClose, onChange }) => {
-  
+
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
 
