@@ -13,7 +13,7 @@ export default function Sponsors() {
     <>
       {
         dataUsers?.length ? (
-          <div className="px-4 h-full overflow-auto mt-4">
+          <div className="px-4 h-full overflow-auto mt-0">
             <Header string="Sponsors" />
 
             <div className="grid gap-2 space-y-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">

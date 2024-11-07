@@ -16,7 +16,6 @@ const MerchForm = ({ onClose, onSubmit }) => {
  
 
   const handleUpload = async () => {
-    setLoading(true)
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('images', file);
@@ -25,12 +24,11 @@ const MerchForm = ({ onClose, onSubmit }) => {
     try {
       const response = await fetcher(API_URL_UPLOAD, formData);
       console.log("response: ", response)
-      await setUrl(response.imageUrls[0])
+      setUrl(response.imageUrls[0])
+      return response.imageUrls[0];
     } catch (error) {
       console.error('Error uploading the image:', error);
     }
-    setLoading(false);
-
   };
 
   const fetcher = (url, data) => {
@@ -44,7 +42,7 @@ const MerchForm = ({ onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleUpload();
+    var url = await handleUpload();
 
     const merchData = {
       name,

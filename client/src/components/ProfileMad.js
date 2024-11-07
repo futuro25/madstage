@@ -124,7 +124,7 @@ export default function ProfileMad() {
     <>
     {
       user?._id ? (
-        <div className="px-4 h-full overflow-auto mt-4">
+        <div className="px-4 h-full overflow-auto mt-0">
           <Header string="Mad's" />
           <ProfileCard key={user.id} user={user} />
 
@@ -202,7 +202,7 @@ export default function ProfileMad() {
 
           </div>
           <div>
-            <div className="grid grid-cols-4 gap-4 mt-2">
+            <div className="grid grid-cols-4 gap-4 mt-2 mb-20">
               {
                 user.merch.map(image => (
                   <div className="flex flex-col items-center justify-center">

@@ -76,7 +76,7 @@ export default function Settings() {
   }, [])
 
   return (
-    <div className="px-4 h-full overflow-auto mt-4">
+    <div className="px-4 h-full overflow-auto mt-0">
       <Header string="Settings" />
 
       {

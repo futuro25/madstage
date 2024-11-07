@@ -14,7 +14,7 @@ export default function ProfileSponsor() {
     merch: [{id: 1, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"},  { id: 2, name: 'Gorra', price: "19,99", url: "https://http2.mlstatic.com/D_NQ_NP_654414-MLA77579278870_072024-O.webp" },  { id: 3, name: 'Bermuda', price: "39,99", url: "https://http2.mlstatic.com/D_NQ_NP_983254-MLA53863646135_022023-O.webp"}, {id: 4, name: 'Remera', price: "49,99", url: "https://http2.mlstatic.com/D_NQ_NP_823565-MLA73493194208_122023-O.webp"}]};
 
   return (
-    <div className="px-4 h-full overflow-auto mt-4 px-4">
+    <div className="px-4 h-full overflow-auto mt-0 px-4">
       <div className="w-full flex sticky top-0 z-10 bg-white rounded pb-4 items-center justify-center mt-4 mb-4">
         <h1 className="inline-block font-extrabold text-gray-800 tracking-tight text-2xl">
             Profile Sponsor

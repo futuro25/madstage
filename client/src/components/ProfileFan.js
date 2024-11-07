@@ -28,7 +28,7 @@ export default function ProfileMad() {
     <>
     {
       user?._id ? (
-        <div className="px-4 h-full overflow-auto mt-4">
+        <div className="px-4 h-full overflow-auto mt-0">
           <Header string="Fan" />
           <ProfileCard key={user.id} user={user} />
 
