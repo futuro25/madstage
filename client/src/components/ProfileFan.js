@@ -1,35 +1,36 @@
 import ProfileCard from "./common/ProfileCard";
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "./common/Dialog";
 import LoadingState from "./common/LoadingState";
 import { CloseIcon } from "./icons";
 import Button from "./common/Button";
-import useSWR from 'swr'
+import useSWR from "swr";
 import Header from "./common/Header";
 
 export default function ProfileMad() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const API_URL = '/api/users';
-  const { data: dataUser } = useSWR(API_URL + "/" + sessionStorage.userId, (url) => fetch(url).then(res => res.json()))
+  const API_URL = "/api/users";
+  const { data: dataUser } = useSWR(
+    API_URL + "/" + sessionStorage.userId,
+    (url) => fetch(url).then((res) => res.json())
+  );
   const [user, setUser] = useState({});
-  
+
   useEffect(() => {
     const tempUser = {
       ...dataUser,
       pictures: [],
       merch: [],
-    }
+    };
     setUser(tempUser);
-  }, [dataUser])
-
+  }, [dataUser]);
 
   return (
     <>
-    {
-      user?._id ? (
+      {user?._id ? (
         <div className="px-4 h-full overflow-auto mt-0">
-          <Header string="Fan" />
+          <Header string="Profile Fan" />
           <ProfileCard key={user.id} user={user} />
 
           <div className="mt-8">
@@ -48,7 +49,9 @@ export default function ProfileMad() {
                 </div>
 
                 <div className="flex gap-2 justify-center items-center">
-                  <Button onClick={() => setIsModalInvoiceOpen(false)}>Cerrar</Button>
+                  <Button onClick={() => setIsModalInvoiceOpen(false)}>
+                    Cerrar
+                  </Button>
                 </div>
               </div>
             </DialogContent>
@@ -56,8 +59,7 @@ export default function ProfileMad() {
         </div>
       ) : (
         <LoadingState />
-      )
-    }
+      )}
     </>
   );
 }
