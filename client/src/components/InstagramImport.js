@@ -21,7 +21,6 @@ const login = () => {
     + `&response_type=code`;
 
   newWindow = window.open(location, 'InstagramAuth', 'width=600,height=700');
-  imageLoaded = false;
   clearInterval(getCode);
   clearInterval(checkUrl);
   clearInterval(shortToLongToken);
