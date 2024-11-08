@@ -117,7 +117,7 @@ const getLongToken = (() => {
 
 const InstagramImport = ({ onClose, onChange, userToken }) => {
   if (userToken) {
-    //token = userToken;
+    token = userToken;
   } else {
     token = sessionStorage.getItem('token');
   }
