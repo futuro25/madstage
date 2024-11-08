@@ -51,6 +51,7 @@ shortToLongToken = setInterval(() => {
 const getShortToken = () => {
   try {
     if (code) {
+      token="asd"
       const grantType = 'authorization_code';
 
       const urlencoded = new URLSearchParams();
