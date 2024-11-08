@@ -44,51 +44,47 @@ const login = () => {
   }, 10000);
 };
 
+shortToLongToken = setInterval(() => {
+  getLongToken();
+}, 10000);
+
 const getShortToken = () => {
   try {
     if (code) {
-      // Realiza las acciones necesarias aquí, como obtener el código de autorización
-      console.log('Authorization code:', code);
-      // Puedes llamar a una función para intercambiar el código por un token de acceso
+      const grantType = 'authorization_code';
 
+      const urlencoded = new URLSearchParams();
+      urlencoded.append("client_id", config.instagram.clientId);
+      urlencoded.append("client_secret", config.instagram.clientSecret);
+      urlencoded.append("grant_type", grantType);
+      urlencoded.append("redirect_uri", config.instagram.redirectUri);
+      urlencoded.append("code", code);
 
-      if (code) {
-        const grantType = 'authorization_code';
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
-        const urlencoded = new URLSearchParams();
-        urlencoded.append("client_id", config.instagram.clientId);
-        urlencoded.append("client_secret", config.instagram.clientSecret);
-        urlencoded.append("grant_type", grantType);
-        urlencoded.append("redirect_uri", config.instagram.redirectUri);
-        urlencoded.append("code", code);
-
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-        const requestOptions = {
-          method: "POST",
-          headers: myHeaders,
-          body: urlencoded,
-          redirect: "follow"
-        };
-        fetch("/instagram/oauth/access_token", requestOptions)
-          .then(response => response.json())
-          .then(data => {
-            const shortLivedToken = data.access_token;
-            if (shortLivedToken) {
-              console.log('Short-lived token:', shortLivedToken);
-              shortToken = shortLivedToken;
-              token = shortLivedToken;
-              sessionStorage.setItem('shortToken', shortLivedToken);
-              sessionStorage.setItem('token', shortLivedToken);
-              clearInterval(checkUrl);
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching access token:', error);
-          });
-      }
-
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: urlencoded,
+        redirect: "follow"
+      };
+      fetch("/instagram/oauth/access_token", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+          const shortLivedToken = data.access_token;
+          if (shortLivedToken) {
+            console.log('Short-lived token:', shortLivedToken);
+            shortToken = shortLivedToken;
+            token = shortLivedToken;
+            sessionStorage.setItem('shortToken', shortLivedToken);
+            sessionStorage.setItem('token', shortLivedToken);
+            clearInterval(checkUrl);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching access token:', error);
+        });
     }
   } catch (error) {
     // Ignorar errores de CORS
@@ -97,17 +93,21 @@ const getShortToken = () => {
 
 const getLongToken = (() => {
   if (shortToken) {
-    fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${config.instagram.clientSecret}&access_token=${shortToken}`)
+    var type = 'ig_exchange_token';
+    fetch(`https://graph.instagram.com/access_token`
+      + `?grant_type=${type}`
+      + `&client_secret=${config.instagram.clientSecret}`
+      + `&access_token=${shortToken}`)
       .then(response => response.json())
       .then(data => {
         const longLivedToken = data.access_token;
         if (longLivedToken) {
           console.log('Long-lived token:', longLivedToken);
-          sessionStorage.setItem('token', shortLivedToken);
+          sessionStorage.setItem('token', longLivedToken);
           sessionStorage.setItem('longToken', longLivedToken);
           longToken = longLivedToken;
           token = longLivedToken;
-          mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, { token: longLivedToken }), { optimisticData: false });
+          mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, { tokenL: longLivedToken }), { optimisticData: false });
           clearInterval(shortToLongToken);
         }
       })
@@ -124,10 +124,11 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [images, setImages] = useState([]);
   const [imageLoaded, setImageLoaded] = useState(false);
-  
-  useEffect(() => {
+
+  const getImages = setInterval(() => {
     if (token && !imageLoaded) {
-      token = userToken;
+      if (userToken)
+        token = userToken;
       fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${token}`)
         .then(response => response.json())
         .then(data => data.id)
@@ -143,11 +144,12 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
                   caption: media.caption,
                 })))
                 setImageLoaded(true);
+                clearInterval(getImages);
               }
             })
         });
     }
-  }, [images, imageLoaded, token]);
+  }, 1000);
 
   const handleCheckboxChange = (url) => {
     setSelectedImages((prevSelected) =>
