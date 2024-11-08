@@ -8,8 +8,6 @@ var newWindow;
 var getCode;
 var checkUrl;
 var shortToLongToken;
-var imageLoaded = false;
-var images;
 
 var shortToken = sessionStorage.getItem('shortToken');
 var longToken = sessionStorage.getItem('longToken');
@@ -79,6 +77,7 @@ const getShortToken = () => {
           .then(data => {
             const shortLivedToken = data.access_token;
             if (shortLivedToken) {
+              console.log('Short-lived token:', shortLivedToken);
               shortToken = shortLivedToken;
               token = shortLivedToken;
               sessionStorage.setItem('shortToken', shortLivedToken);
@@ -98,40 +97,58 @@ const getShortToken = () => {
 }
 
 const getLongToken = (() => {
-  if (shortToken && false) {
+  if (shortToken) {
     fetch(`https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${config.instagram.clientSecret}&access_token=${shortToken}`)
       .then(response => response.json())
       .then(data => {
         const longLivedToken = data.access_token;
-        console.log('Long-lived token:', longLivedToken);
-        longToken = longLivedToken;
-        token = longToken;
-        clearInterval(shortToLongToken);
+        if (longLivedToken) {
+          console.log('Long-lived token:', longLivedToken);
+          sessionStorage.setItem('token', shortLivedToken);
+          sessionStorage.setItem('longToken', longLivedToken);
+          longToken = longLivedToken;
+          token = longLivedToken;
+          mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, { token: longLivedToken }), { optimisticData: false });
+          clearInterval(shortToLongToken);
+        }
       })
   }
 });
 
 const InstagramImport = ({ onClose, onChange, userToken }) => {
-  token = userToken;
+  if (userToken) {
+    //token = userToken;
+  } else {
+    token = sessionStorage.getItem('token');
+  }
   const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
-
-  setInterval(() => {
+  const [images, setImages] = useState([]);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  
+  useEffect(() => {
     if (token && !imageLoaded) {
+      token = userToken;
       fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${token}`)
         .then(response => response.json())
         .then(data => data.id)
-        .then(userId => fetch(`https://graph.instagram.com/${userId}/media?fields=media_type,media_url,thumbnail_url&access_token=${token}`)
-          .then(response => response.json()))
-        .then(mediaData => {
-          images = mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
-            url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
-            caption: media.caption,
-          }))
-          imageLoaded = true;
+        .then(userId => {
+          if (imageLoaded || !userId) return;
+          console.log('User ID:', userId);
+          fetch(`https://graph.instagram.com/${userId}/media?fields=media_type,media_url,thumbnail_url&access_token=${token}`)
+            .then(response => response.json())
+            .then(mediaData => {
+              if (!imageLoaded && mediaData.data) {
+                setImages(mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
+                  url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
+                  caption: media.caption,
+                })))
+                setImageLoaded(true);
+              }
+            })
         });
     }
-  }, 1000);
+  }, [images, imageLoaded, token]);
 
   const handleCheckboxChange = (url) => {
     setSelectedImages((prevSelected) =>
@@ -186,7 +203,7 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
             <button onClick={handleSelectAll} className="bg-yellow-500 text-white px-4 py-2 rounded mb-4 ml-2">Seleccionar todas</button>
             <div className="max-h-96 overflow-y-auto">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {(images ? images.map((image) => (
+                {imageLoaded && images.map((image) => (
                   <div key={image.url} className="relative cursor-pointer" onClick={() => handleCheckboxChange(image.url)}>
                     <img src={image.url} alt="Instagram" className="w-full h-auto rounded" />
                     <input
@@ -196,7 +213,8 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
                       className="absolute top-2 right-2 pointer-events-none"
                     />
                   </div>
-                )) : <div className="text-center">Cargando imágenes...</div>)}
+                ))}
+                {(!imageLoaded && <div className="text-center">Cargando imágenes...</div>)}
               </div>
             </div>
             <button onClick={handleUploadSelectedImages} className="bg-green-500 text-white px-4 py-2 rounded mt-4" disabled={isLoadingSubmit}>{isLoadingSubmit ? 'Subiendo...' : 'Agregar imágenes seleccionadas'}</button>
