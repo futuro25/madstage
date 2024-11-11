@@ -14,7 +14,7 @@ export default function ForgotPassword() {
 
   const onSubmit = async (formData) => {
     const body = {
-      email: formData.email,
+      email: formData.email.toLowerCase(),
     }
 
     try {
