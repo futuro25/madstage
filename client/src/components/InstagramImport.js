@@ -3,154 +3,30 @@ import React, { useState, useEffect } from 'react';
 import { config } from '../config';
 import useSWR from 'swr'
 
-var code;
-var newWindow;
-var getCode;
-var checkUrl;
-var shortToLongToken;
+const login = () => {}
 
-var shortToken = sessionStorage.getItem('shortToken');
-var longToken = sessionStorage.getItem('longToken');
-var token = sessionStorage.getItem('token');
+const InstagramImport = ({ onClose, onChange }) => {
+  const [images, setImages] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [username, setUsername] = useState('');
 
-const login = () => {
-  code = null;
-  const location = `https://api.instagram.com/oauth/authorize?client_id=${config.instagram.clientId}`
-    + `&redirect_uri=${config.instagram.redirectUri}`
-    + `&scope=user_profile,user_media`
-    + `&response_type=code`;
-
-  newWindow = window.open(location, 'InstagramAuth', 'width=600,height=700');
-  clearInterval(getCode);
-  clearInterval(checkUrl);
-  clearInterval(shortToLongToken);
-
-  getCode = setInterval(() => {
-    try {
-      code = newWindow.location.search.substring(1).split("&").find(elem => elem.startsWith("code"))?.split("=")[1];
-      if (code) {
-        clearInterval(getCode);
-        newWindow.close();
+  const getImages = () => {
+    fetch("/instagram/post/"+username, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
-    } catch (error) { }
-  }, 100);
-
-  checkUrl = setInterval(() => {
-    getShortToken();
-  }, 2000);
-
-  shortToLongToken = setInterval(() => {
-    getLongToken();
-  }, 10000);
-};
-
-shortToLongToken = setInterval(() => {
-  getLongToken();
-}, 10000);
-
-const getShortToken = () => {
-  try {
-    if (code) {
-      token="asd"
-      const grantType = 'authorization_code';
-
-      const urlencoded = new URLSearchParams();
-      urlencoded.append("client_id", config.instagram.clientId);
-      urlencoded.append("client_secret", config.instagram.clientSecret);
-      urlencoded.append("grant_type", grantType);
-      urlencoded.append("redirect_uri", config.instagram.redirectUri);
-      urlencoded.append("code", code);
-
-      const myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: urlencoded,
-        redirect: "follow"
-      };
-      fetch("/instagram/oauth/access_token", requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          const shortLivedToken = data.access_token;
-          if (shortLivedToken) {
-            console.log('Short-lived token:', shortLivedToken);
-            shortToken = shortLivedToken;
-            token = shortLivedToken;
-            sessionStorage.setItem('shortToken', shortLivedToken);
-            sessionStorage.setItem('token', shortLivedToken);
-            clearInterval(checkUrl);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching access token:', error);
-        });
-    }
-  } catch (error) {
-    // Ignorar errores de CORS
-  }
-}
-
-const getLongToken = (() => {
-  if (shortToken) {
-    var type = 'ig_exchange_token';
-    fetch(`https://graph.instagram.com/access_token`
-      + `?grant_type=${type}`
-      + `&client_secret=${config.instagram.clientSecret}`
-      + `&access_token=${shortToken}`)
+    })
       .then(response => response.json())
       .then(data => {
-        const longLivedToken = data.access_token;
-        if (longLivedToken) {
-          console.log('Long-lived token:', longLivedToken);
-          sessionStorage.setItem('token', longLivedToken);
-          sessionStorage.setItem('longToken', longLivedToken);
-          longToken = longLivedToken;
-          token = longLivedToken;
-          mutate(API_URL, utils.patchRequest(`${API_URL}/${sessionStorage.userId}`, { tokenL: longLivedToken }), { optimisticData: false });
-          clearInterval(shortToLongToken);
-        }
-      })
-  }
-});
-
-const InstagramImport = ({ onClose, onChange, userToken }) => {
-  if (userToken) {
-    token = userToken;
-  } else {
-    token = sessionStorage.getItem('token');
-  }
-  const [isLoadingSubmit, setiIsLoadingSubmit] = useState(false);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [images, setImages] = useState([]);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  const getImages = setInterval(() => {
-    if (token && !imageLoaded) {
-      if (userToken)
-        token = userToken;
-      fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${token}`)
-        .then(response => response.json())
-        .then(data => data.id)
-        .then(userId => {
-          if (imageLoaded || !userId) return;
-          console.log('User ID:', userId);
-          fetch(`https://graph.instagram.com/${userId}/media?fields=media_type,media_url,thumbnail_url&access_token=${token}`)
-            .then(response => response.json())
-            .then(mediaData => {
-              if (!imageLoaded && mediaData.data) {
-                setImages(mediaData.data.filter(media => media.media_type !== 'IMAGE').map(media => ({
-                  url: media.media_type === "CAROUSEL_ALBUM" ? media.media_url : media.thumbnail_url,
-                  caption: media.caption,
-                })))
-                setImageLoaded(true);
-                clearInterval(getImages);
-              }
-            })
-        });
-    }
-  }, 1000);
+        console.log(data.urls);
+        setImages(data.urls);
+        setImageLoaded(true);
+      });
+  };
 
   const handleCheckboxChange = (url) => {
     setSelectedImages((prevSelected) =>
@@ -188,10 +64,6 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
 
   const close = () => {
     onClose(false);
-
-    clearInterval(getCode);
-    clearInterval(checkUrl);
-    clearInterval(shortToLongToken);
   };
 
   return (
@@ -199,19 +71,31 @@ const InstagramImport = ({ onClose, onChange, userToken }) => {
       <div className="bg-white p-6 rounded-lg w-11/12 max-w-4xl max-h-90vh relative">
         <button onClick={close} className="absolute top-4 right-4 text-xl font-bold">X</button>
         <h2 className="text-2xl font-bold mb-4">Importar imágenes desde Instagram</h2>
-        {!token && <button onClick={login} className="bg-blue-500 text-white px-4 py-2 rounded mb-4 ml-2">Login</button>}
-        {token && (
+        {!imageLoaded && (
+          <div>
+            <input
+              type="text"
+              placeholder="Ingrese el nombre de usuario"
+              className="border p-2 rounded mb-4 w-full"
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <button onClick={getImages} className="bg-blue-500 text-white px-4 py-2 rounded">
+              Obtener imágenes
+            </button>
+          </div>
+        )}
+        {imageLoaded && (
           <div>
             <button onClick={handleSelectAll} className="bg-yellow-500 text-white px-4 py-2 rounded mb-4 ml-2">Seleccionar todas</button>
             <div className="max-h-96 overflow-y-auto">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {imageLoaded && images.map((image) => (
-                  <div key={image.url} className="relative cursor-pointer" onClick={() => handleCheckboxChange(image.url)}>
-                    <img src={image.url} alt="Instagram" className="w-full h-auto rounded" />
+                  <div key={image} className="relative cursor-pointer" onClick={() => handleCheckboxChange(image)}>
+                    <img src={image} alt="Instagram" className="w-full h-auto rounded" />
                     <input
                       type="checkbox"
-                      checked={selectedImages.includes(image.url)}
-                      onChange={() => handleCheckboxChange(image.url)}
+                      checked={selectedImages.includes(image)}
+                      onChange={() => handleCheckboxChange(image)}
                       className="absolute top-2 right-2 pointer-events-none"
                     />
                   </div>
