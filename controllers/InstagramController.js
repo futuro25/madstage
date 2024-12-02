@@ -5,6 +5,8 @@ const config = require('../config');
 const fs = require('fs');
 const path = require('path');
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 router.post('/oauth/access_token', async (req, res) => {
     const { client_id, client_secret, grant_type, redirect_uri, code } = req.body;
 
