@@ -72,7 +72,8 @@ export default function ProfileMad() {
       const pieces = image.url.split("/");
       const imagePublicId = pieces[pieces.length - 1].split(".")[0];
       const totalImages = dataUser.pictures.filter(
-        (picture) => !picture.url.includes(imagePublicId)
+      //  (picture) => !picture.url.includes(imagePublicId) && picture.id.includes(image.id)
+        (picture) => !(picture.url == image.url && picture._id == image._id)
       );
       await mutate(
         API_URL,
